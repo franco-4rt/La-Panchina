@@ -99,11 +99,17 @@ public class AuthController {
         // Find user by email in database
         Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
         // Check if user exists and if BCrypt matches the hashed password
+        if (optionalUser.isEmpty()) {
+            model.addAttribute("errorMessage", "Account doesn't exist");
+            model.addAttribute("email", email);
+            return "login";
+        }
         if (optionalUser.isEmpty() || !passwordEncoder.matches(password, optionalUser.get().getPassword())) {
-            model.addAttribute("errorMessage", "Invalid email or password.");
+            model.addAttribute("errorMessage", "Invalid password.");
             model.addAttribute("email", email); // Keep typed email in the box
             return "login";
         }
+
         User user = optionalUser.get();
         // Prevent caching of authenticated pages (from professor's code)
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -111,7 +117,7 @@ public class AuthController {
         response.setHeader("Expires", "0");
         // Save to session using professor's key name
         request.getSession().setAttribute("session_user", user);
-        
+
         redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + user.getName() + "!");
         if("ADMIN".equalsIgnoreCase(user.getRole())){
             return "redirect:/admin";
