@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Bookings - La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Custom styles just for this table to match the theme of the website. Probably temporary just for this first iteration*/
+        .booking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .booking-table th, .booking-table td {
+            border: 1px solid var(--color-border);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .booking-table th {
+            background-color: var(--color-surface-warm);
+            font-family: var(--font-serif);
+        }
+        .status-pending { color: #d97706; font-weight: bold; }
+        .status-confirmed { color: var(--color-olive); font-weight: bold; }
+        .status-cancelled { color: var(--color-terracotta); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Reuse navbar -->
+    <header class="site-header" th:replace="~{index :: navbar}"></header>
+
+    <main class="section">
+        <div class="container">
+            <h2 class="text-center section-title">Admin Dashboard: All Bookings</h2>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Party Size</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- th:each loops through the list of bookings passed from the controller -->
+                        <tr th:each="booking : ${bookings}">
+                            <td th:text="${booking.id}"></td>
+                            <td th:text="${booking.name}"></td>
+                            <td th:text="${booking.date}"></td>
+                            <td th:text="${booking.time}"></td>
+                            <td th:text="${booking.partySize}"></td>
+                            <td>
+                                <!-- Dynamically change text color based on status -->
+                                <span th:text="${booking.status}" 
+                                      th:classappend="${booking.status == 'pending' ? 'status-pending' : (booking.status == 'confirmed' ? 'status-confirmed' : 'status-cancelled')}">
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <!-- Show this row if the database is empty -->
+                        <tr th:if="${#lists.isEmpty(bookings)}">
+                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                No bookings found yet.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Reuse footer -->
+    <footer class="site-footer" th:replace="~{index :: footer}"></footer>
+
+</body>
+</html>
