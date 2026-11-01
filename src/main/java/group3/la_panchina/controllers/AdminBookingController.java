@@ -11,15 +11,15 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
-public class AdminController {
+public class AdminBookingController {
 
     private final BookingRepository bookingRepository;
 
-    public AdminController(BookingRepository bookingRepository) {
+    public AdminBookingController(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
     }
 
-    // When admin visits /admin/bookings
+    // When admin visits /admin/bookings 
     @GetMapping("/bookings")
     public String viewAllBookings(Model model) {
         // Fetch all bookings from the database
