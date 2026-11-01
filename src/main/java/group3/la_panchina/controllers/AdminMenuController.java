@@ -26,41 +26,36 @@ import jakarta.validation.Valid;
 @RequestMapping ("/admin/menu")
 public class AdminMenuController {
     
-    private final AuthController authController;
     private final MenuItemRepository repo;
 
     public AdminMenuController(MenuItemRepository repo, AuthController authController){
         this.repo = repo;
-        this.authController = authController;
     }
 
-    private boolean isAdmin(HttpSession session){
-        return session.getAttribute("session_user") instanceof User u && "ADMIN".equals(u.getRole());
-    }
-
-    private String deny(HttpSession session){
-        return session.getAttribute("session_user") == null ? "redirect:/login" : "redirect:/";
+    private boolean notAdmin(HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
+        return user == null || !"ADMIN".equalsIgnoreCase(user.getRole());
     }
 
     @GetMapping
     public String list(HttpSession session, Model model) {
-        if(!isAdmin(session)) return deny(session);
+        if (notAdmin(session)) return "redirect:/login";
         model.addAttribute("items", repo.findAll(Sort.by("menuType", "id")));
-        return "admin/menu-list";
+        return "adminMenu";
     }
     
-    @GetMapping("/new")
-    public String newForm(HttpSession session, Model model) {
-        if (!isAdmin(session)) return deny(session);
+    @GetMapping("/add")
+    public String addForm(HttpSession session, Model model) {
+        if (notAdmin(session)) return "redirect:/login";
         model.addAttribute("item", new MenuItemModel());
-        return form(model, "/admin/menu", "New dish");
+        return form(model, "/admin/menu/add", "New dish");
     }
-    
-    @PostMapping
-    public String create(@Valid @ModelAttribute("item") MenuItemModel item,
+
+    @PostMapping("/add")
+    public String add(@Valid @ModelAttribute("item") MenuItemModel item,
                         BindingResult result, HttpSession session, Model model) {
-        if (!isAdmin(session)) return deny(session);
-        if (result.hasErrors()) return form(model, "/admin/menu", "New dish");
+        if (notAdmin(session)) return "redirect:/login";
+        if (result.hasErrors()) return form(model, "/admin/menu/add", "New dish");
         item.setId(null);
         repo.save(item);
         return "redirect:/admin/menu";
@@ -68,19 +63,19 @@ public class AdminMenuController {
     
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, HttpSession session, Model model) {
-        if(!isAdmin(session)) return deny(session);
+        if (notAdmin(session)) return "redirect:/login";
         MenuItemModel item = repo.findById(id).orElse(null);
         if(item == null) return "redirect:/admin/menu";
         model.addAttribute("item", item);
-        return form(model, "/admin/menu/" + id, "Edit dish");
+        return form(model, "/admin/menu/edit/" + id, "Edit dish");
     }
 
-    @PostMapping("/{id}")
-    public String update(@PathVariable Long id,
-                        @Valid  @ModelAttribute("item") MenuItemModel item,
+    @PostMapping("/edit/{id}")
+    public String edit(@PathVariable Long id,
+                        @Valid @ModelAttribute("item") MenuItemModel item,
                         BindingResult result, HttpSession session, Model model) {
-        if(!isAdmin(session)) return deny(session);
-        if(result.hasErrors()) return form(model, "/admin/menu" + id, "Edit dish");
+        if (notAdmin(session)) return "redirect:/login";
+        if (result.hasErrors()) return form(model, "/admin/menu/edit/" + id, "Edit dish");
         item.setId(id);
         repo.save(item);
         return "redirect:/admin/menu";
@@ -88,7 +83,7 @@ public class AdminMenuController {
     
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, HttpSession session) {
-        if (!isAdmin(session)) return deny(session);
+        if (notAdmin(session)) return "redirect:/login";
         repo.deleteById(id);
         return "redirec:/admin/menu";
     }
@@ -98,6 +93,6 @@ public class AdminMenuController {
         model.addAttribute("types", MenuType.values());
         model.addAttribute("formAction", action);
         model.addAttribute("formTitle", title);
-    return "admin/menu-form";
+    return "admin/menuAdd";
     }
 }
