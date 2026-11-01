@@ -1,7 +1,5 @@
 package group3.la_panchina.models;
 
-import org.aspectj.bridge.Message;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

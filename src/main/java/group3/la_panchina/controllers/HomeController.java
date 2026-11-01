@@ -13,39 +13,37 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import group3.la_panchina.models.MenuItemModel;
 import group3.la_panchina.models.MenuItemModel.MenuType;
+import group3.la_panchina.models.User;
 import group3.la_panchina.repositories.MenuItemRepository;
-
-
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HomeController {
-<<<<<<< HEAD
 
     private final MenuItemRepository repo;
 
-    public HomeController(MenuItemRepository repository){
+    public HomeController(MenuItemRepository repository) {
         this.repo = repository;
     }
-
-=======
->>>>>>> origin/feature/epic1-i1-login-auth
+    
     @GetMapping("/")
     public String index() {
         return "index";
-    }    
+    }
 
-@GetMapping("/menu")
-    public String menu(@RequestParam(defaultValue = "BREAKFAST") MenuType type, Model model) {
+    @GetMapping("/menu")
+    public String menu(@RequestParam(defaultValue = "BREAKFAST") MenuType type,
+                    HttpSession session, Model model) {
         Map<String, List<MenuItemModel>> grouped = repo.findByMenuType(type, Sort.by("id")).stream()
-        .collect(Collectors.groupingBy(
-            item -> item.getCategory() == null ? "Otros" : item.getCategory(),
-            LinkedHashMap::new,
-            Collectors.toList()));
+            .collect(Collectors.groupingBy(
+                item -> item.getCategory() == null ? "Otros" : item.getCategory(),
+                LinkedHashMap::new,
+                Collectors.toList()));
 
         model.addAttribute("grouped", grouped);
         model.addAttribute("type", type);
-
+        model.addAttribute("isAdmin",
+            session.getAttribute("session_user") instanceof User u && "ADMIN".equals(u.getRole()));
         return "menu";
     }
 }
-

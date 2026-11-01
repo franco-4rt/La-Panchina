@@ -342,7 +342,6 @@ a:hover {
   text-align: center;
 }
 
-<<<<<<< HEAD
 /* Menu page */
 .title-compact {
   padding: 3rem 0;
@@ -397,16 +396,6 @@ a:hover {
   max-width: 85%;
 }
 
-/* Admin */
-.admin-table-wrap { overflow-x: auto; }
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-=======
 /* Message */
 .warning-message {
   background-color: #fdeeed;
@@ -432,7 +421,9 @@ a:hover {
   font-weight: 600;
 }
 
-/* Admin Dashboard & Tables*/
+/* Admin Dashboard & Tables */
+.admin-table-wrap { overflow-x: auto; }
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -441,25 +432,20 @@ a:hover {
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--color-border);
->>>>>>> origin/feature/epic1-i1-login-auth
 }
 
 .admin-table th,
 .admin-table td {
-<<<<<<< HEAD
-  text-align: left;
-  padding: 0.7rem 0.9rem;
-=======
   padding: 12px 16px;
   text-align: left;
->>>>>>> origin/feature/epic1-i1-login-auth
   border-bottom: 1px solid var(--color-border);
 }
 
 .admin-table th {
-<<<<<<< HEAD
-  background: var(--color-surface-warm);
+  background-color: var(--color-surface-warm);
   font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .admin-actions { display: flex; gap: 0.5rem; align-items: center; }
@@ -494,11 +480,6 @@ a:hover {
 }
 
 .admin-form-buttons { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
-=======
-  background-color: var(--color-surface-warm);
-  font-weight: 600;
-  color: var(--color-text);
-}
 
 .role-badge {
   display: inline-block;
@@ -517,4 +498,3 @@ a:hover {
   background-color: #eaf3eb;
   color: var(--color-olive);
 }
->>>>>>> origin/feature/epic1-i1-login-auth
