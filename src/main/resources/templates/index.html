@@ -34,12 +34,12 @@
                     
                     <!-- Login as customer -->
                     <li th:if="${session.session_user != null and session.session_user.role == 'CUSTOMER'}">
-                        <span class="nav-link" style="color: var(--color-olive); font-weight: 600;" th:text="'Welcome, ' + ${session.session_user.name}"></span>
+                        <span class="nav-link" th:text="'Welcome, ' + ${session.session_user.name}"></span>
                     </li>
 
                     <!-- Login as admin -->
                     <li th:if="${session.session_user != null and session.session_user.role == 'ADMIN'}">
-                        <span class="nav-link" style="color: var(--color-terracotta); font-weight: 600;" th:text="'Admin, ' + ${session.session_user.name}"></span>
+                        <a th:href="@{/admin}" href="/admin" class="nav-link">Admin Dashboard</a>
                     </li>
 
                     <!-- Logout -->
@@ -53,9 +53,9 @@
 
     <main>
         <!-- Welcome message -->
-        <div th:if="${successMessge}" class="container" style="margin-top: 1.5rem; text-align: center;">
-            <div style="background-color: whitesmoke; color: var(--color-olive); padding: 0.75rem 1rem; border-radius: var(--radius); font-weight: 600;">
-                <p th:text="${successMessge}" style="margin: 0;"></p>
+        <div th:if="${successMessage}" class="success-message-block">
+            <div class="success-message">
+                <p th:text="${successMessage}" style="margin: 0;"></p>
             </div>
         </div>
 

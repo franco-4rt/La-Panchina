@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 
@@ -29,8 +28,8 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
-    public AuthController(UserRepository userRepository2){
-        this.userRepository = userRepository2;
+    public AuthController(UserRepository userRepository){
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/signup")
@@ -55,7 +54,7 @@ public class AuthController {
         request.getSession().invalidate();
 
         redirectAttributes.addFlashAttribute("successMessage", "You have been logged out successfully.");
-        return "redirect:/"; // Redirects to homepage
+        return "redirect:/";
     }
 
     @GetMapping("/login")
@@ -72,7 +71,9 @@ public class AuthController {
                                 HttpSession session, 
                                 RedirectAttributes redirectAttributes){
         if(userRepository.existsByEmailIgnoreCase(user.getEmail()))
-            result.rejectValue("email", "duplicate.email", "An account with this email already exists.");
+            result.rejectValue("email", 
+                                "duplicate.email", 
+                                "An account with this email already exists.");
         
         if(result.hasErrors()){
             return "signup";
@@ -98,11 +99,17 @@ public class AuthController {
         // Find user by email in database
         Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
         // Check if user exists and if BCrypt matches the hashed password
+        if (optionalUser.isEmpty()) {
+            model.addAttribute("errorMessage", "Account doesn't exist");
+            model.addAttribute("email", email);
+            return "login";
+        }
         if (optionalUser.isEmpty() || !passwordEncoder.matches(password, optionalUser.get().getPassword())) {
-            model.addAttribute("errorMessage", "Invalid email or password.");
+            model.addAttribute("errorMessage", "Invalid password.");
             model.addAttribute("email", email); // Keep typed email in the box
             return "login";
         }
+
         User user = optionalUser.get();
         // Prevent caching of authenticated pages (from professor's code)
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -110,8 +117,13 @@ public class AuthController {
         response.setHeader("Expires", "0");
         // Save to session using professor's key name
         request.getSession().setAttribute("session_user", user);
+
         redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + user.getName() + "!");
-        return "redirect:/";
+        if("ADMIN".equalsIgnoreCase(user.getRole())){
+            return "redirect:/admin";
+        } else{
+            return "redirect:/";
+        }
     }
     
 }

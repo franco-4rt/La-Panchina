@@ -19,6 +19,7 @@ import group3.la_panchina.repositories.MenuItemRepository;
 
 @Controller
 public class HomeController {
+<<<<<<< HEAD
 
     private final MenuItemRepository repo;
 
@@ -26,6 +27,8 @@ public class HomeController {
         this.repo = repository;
     }
 
+=======
+>>>>>>> origin/feature/epic1-i1-login-auth
     @GetMapping("/")
     public String index() {
         return "index";
@@ -44,7 +47,5 @@ public class HomeController {
 
         return "menu";
     }
-
-    
 }
 
