@@ -6,6 +6,32 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <div class="reviews-container">
+
+        <h1>Customer Reviews</h1>
+        <p>See what our customers think about La Panchina.</p>
+
+        <a th:href="@{/customer/review/createR}">
+            Write a Review
+        </a>
+
+        <div class="review-card" th:each="review : ${reviews}">
+            <h3 th:text="${review.user}"></h3> <!--This is a template as to what the user part may look like-->
+            <p>
+                Rating:
+                <span th:text="${review.rating}"></span>/5
+            </p>
+            <p th:text="${review.comment}"></p>
+            <small>
+                Submitted:
+                <span th:text="${review.dateSubmitted}"></span>
+            </small>
+            <small th:if="${review.dateUpdated != null}">
+                Updated:
+                <span th:text="${review.dateUpdated}"></span>
+            </small>
+        </div>
+
+    </div>
 </body>
 </html>
