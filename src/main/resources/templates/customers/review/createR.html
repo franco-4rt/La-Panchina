@@ -9,8 +9,8 @@
     <div> <!--A container that has inside itself the form to add a new review-->
              <!--the form uses the action to know where to send the data from the form and the key($) to get the object-->
             <form th:action="@{/customer/review/createR}" th:object="${reviews}" method="post">
-                    <label>Rating [1-5]:</label>
-                        <select>
+                    <label for="rating">Rating [1-5]:</label>
+                        <select id="rating" name="rating" >
                             <option>Select a rating</option>
                             <option value = 1>1 - Poor</option>
                             <option value = 2>2 - Fair</option>
@@ -18,7 +18,7 @@
                             <option value = 4>4 - Very Good</option>
                             <option value = 5>5 - Excellent</option>
                         </select>
-                    <div th:if="${#fields.hasErrors('clarity')}" th:errors="*{clarity}" class="text-error">
+                    <div th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}" class="text-error">
                     </div>
 
                     <div>
