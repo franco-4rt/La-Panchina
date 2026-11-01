@@ -408,3 +408,18 @@ a:hover {
   background-color: #eaf3eb;
   color: var(--color-olive);
 }
+
+.management-card{
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: var(--transition);
+  margin-top: 1.5rem; 
+  text-align: left; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  flex-wrap: wrap; 
+  gap: 1rem;
+}
