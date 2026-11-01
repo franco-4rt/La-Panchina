@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}" href="../static/images/logo.jpg">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+</head>
+<body>
+
+    <!-- Shared Navigation Bar -->
+    <header class="site-header" th:fragment="navbar">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" href="/" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" src="../static/images/logo.jpg" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" href="/" class="nav-link active">Home</a></li>
+                    <li><a th:href="@{/menu}" href="/menu" class="nav-link">Menu</a></li>
+                    <li><a th:href="@{/reservations}" href="/reservations" class="nav-link">Book a Table</a></li>
+                    <li><a th:href="@{/reviews}" href="/reviews" class="nav-link">Reviews &amp; Find Us</a></li>
+                    <li><a th:href="@{/admin}" href="/admin" class="nav-link">Admin</a></li>
+                    <li><a th:href="@{/login}" href="/login" class="nav-link">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Title Section -->
+        <section class="title-section">
+            <div class="container text-center">
+                <img th:src="@{/images/logo.jpg}" src="../static/images/logo.jpg" alt="La Panchina Logo" class="title-logo">
+                <h1>Welcome to La Panchina</h1>
+                <p class="title-subtitle">Pizzas y platillos italianos auténticos</p>
+                <div class="title-actions">
+                    <a th:href="@{/menu}" href="/menu" class="btn btn-primary">View Our Menu</a>
+                    <a th:href="@{/reservations}" href="/reservations" class="btn btn-secondary">Reserve a Table</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="section section-alt" id="about">
+            <div class="container text-center">
+                <h2>About La Panchina</h2>
+                <p>Pizzas y platillos italianos auténticos</p>
+                <p>Servicio a domicilio y para llevar</p>
+            </div>
+        </section>
+
+        <!-- Featured Specialties -->
+        <section class="section" id="specialties">
+            <div class="container">
+                <h2 class="text-center section-title">Featured Specialties</h2>
+                <div class="grid grid-2">
+                    <div class="card">
+                        <img th:src="@{/images/pizza-prosciutto-funghi.jpg}" src="../static/images/pizza-prosciutto-funghi.jpg" alt="Pizza Prosciutto e Funghi" class="card-img">
+                        <h3>Pizza Prosciutto e Funghi</h3>
+                        <p class="price">$20</p>
+                    </div>
+                    <div class="card">
+                        <img th:src="@{/images/tostas-especiales.jpg}" src="../static/images/tostas-especiales.jpg" alt="Tostas Especiales" class="card-img">
+                        <h3>Tostas Especiales</h3>
+                        <p class="price">$16</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Shared Footer -->
+    <footer class="site-footer" th:fragment="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h3>La Panchina</h3>
+                    <p>Pizzas y platillos italianos auténticos</p>
+                </div>
+                <div>
+                    <h4>Links</h4>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/menu}">Menu</a></li>
+                        <li><a th:href="@{/reservations}">Book a Table</a></li>
+                        <li><a th:href="@{/reviews}">Reviews &amp; Find Us</a></li>
+                        <li><a th:href="@{/login}">Login</a></li>
+                        <li><a th:href="@{/admin}">Admin</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Hours</h4>
+                    <p>Mon: CLOSED</p>
+                    <p>Tue - Sat: 08:00 AM - 10:00 PM</p>
+                    <p>Sun: 08:00 AM - 08:00 PM</p>
+                </div>
+                <div>
+                    <h4>Location</h4>
+                    <p>Heroica Escuela Naval Militar, Reforma, 68050 Oaxaca de Juárez</p>
+                    <p>+52 951 635 3912</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 La Panchina. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
