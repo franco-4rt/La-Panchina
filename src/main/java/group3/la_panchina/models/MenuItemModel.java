@@ -1,5 +1,7 @@
 package group3.la_panchina.models;
 
+import org.aspectj.bridge.Message;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity 
 @Table (name = "menu_items")
@@ -23,18 +26,20 @@ public class MenuItemModel {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     Long id;
 
-    @NotBlank
+    @NotBlank(message ="Name is required")
     private  String name;
 
-    @NotBlank 
+    @NotBlank(message = "Category is required")
     private  String category;
 
     @Enumerated (EnumType.STRING)
+    @NotNull(message = "Choose a menu")
     private MenuType menuType;
 
     private  String description;
 
-    @NotNull 
+    @NotNull
+    @PositiveOrZero(message = "Price cannot be negative")
     private  double price;
 
     protected MenuItemModel(){}
@@ -48,8 +53,6 @@ public class MenuItemModel {
     }
 
     public Long getId() {return id;}
-
-    public void setId(Long id) {this.id = id;}
 
     public String getName() {return name;}
 
