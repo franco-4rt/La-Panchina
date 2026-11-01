@@ -1,6 +1,8 @@
 package group3.la_panchina.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,6 +14,11 @@ import jakarta.validation.constraints.NotNull;
 @Table (name = "menu_items")
 public class MenuItemModel {
 
+    public enum MenuType{
+        DINNER,
+        BREAKFAST 
+    }
+
     @Id 
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     Long id;
@@ -22,6 +29,9 @@ public class MenuItemModel {
     @NotBlank 
     private  String category;
 
+    @Enumerated (EnumType.STRING)
+    private MenuType menuType;
+
     private  String description;
 
     @NotNull 
@@ -29,11 +39,12 @@ public class MenuItemModel {
 
     protected MenuItemModel(){}
 
-    public MenuItemModel(String category, String description, String name, double price) {
+    public MenuItemModel(String category, String description, String name, double price, MenuType menuType) {
         this.category = category;
         this.description = description;
         this.name = name;
         this.price = price;
+        this.menuType = menuType;
     }
 
     public Long getId() {return id;}
@@ -48,5 +59,5 @@ public class MenuItemModel {
 
     public double getPrice() {return price;}
 
-    
+    public MenuType getMenuType() { return menuType; }
 }

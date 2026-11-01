@@ -1,15 +1,19 @@
 package group3.la_panchina.controllers;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import group3.la_panchina.models.MenuItemModel;
+import group3.la_panchina.models.MenuItemModel.MenuType;
 import group3.la_panchina.repositories.MenuItemRepository;
 
 
@@ -29,10 +33,16 @@ public class HomeController {
     }    
 
 @GetMapping("/menu")
-    public String menu(Model model) {
-        Map<String, List<MenuItemModel>> grouped = repo.findAll().stream()
-            .collect(Collectors.groupingBy(MenuItemModel::getCategory, TreeMap::new, Collectors.toList()));
+    public String menu(@RequestParam(defaultValue = "BREAKFAST") MenuType type, Model model) {
+        Map<String, List<MenuItemModel>> grouped = repo.findByMenuType(type, Sort.by("id")).stream()
+        .collect(Collectors.groupingBy(
+            item -> item.getCategory() == null ? "Otros" : item.getCategory(),
+            LinkedHashMap::new,
+            Collectors.toList()));
+
         model.addAttribute("grouped", grouped);
+        model.addAttribute("type", type);
+
         return "menu";
     }
 

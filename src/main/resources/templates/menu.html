@@ -14,8 +14,14 @@
     <main>
         <section class="title-section title-compact">
             <div class="container text-center">
-                <h1>Menu Desayunos</h1>
+                <h1 th:text="${type.name() == 'BREAKFAST'} ? 'Menú Desayunos' : 'Menú Cena'">Menú</h1>
                 <p class="title-subtitle">Cucina Italiana</p>
+                <div class="title-actions">
+                    <a th:href="@{/menu(type='BREAKFAST')}" class="btn"
+                    th:classappend="${type.name() == 'BREAKFAST'} ? 'btn-primary' : 'btn-secondary'">Breakfast</a>
+                    <a th:href="@{/menu(type='DINNER')}" class="btn"
+                    th:classappend="${type.name() == 'DINNER'} ? 'btn-primary' : 'btn-secondary'">Dinner</a>
+                </div>
             </div>
         </section>
 
