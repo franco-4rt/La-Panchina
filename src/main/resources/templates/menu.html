@@ -26,7 +26,7 @@
         </section>
 
         <section class="section" th:each="entry,stat : ${grouped}" 
-                th:classappend="${stat.odd} ? 'section-alt">
+                th:classappend="${stat.odd} ? 'section-alt'">
             <div class="container menu-container">
                 <h2 class="text-center section-title" th:text="${entry.value}">Category</h2>
 
