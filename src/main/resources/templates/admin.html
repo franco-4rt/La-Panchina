@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: #ffffff;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+        }
+        .admin-table th, .admin-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .admin-table th {
+            background-color: var(--color-surface-warm);
+            font-weight: 600;
+            color: var(--color-text);
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .role-admin { background-color: #fdeeed; color: var(--color-terracotta); }
+        .role-customer { background-color: #eaf3eb; color: var(--color-olive); }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <header class="site-header">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" alt="La Panchina" class="brand-img">
+                    <span>La Panchina (Admin)</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/admin}" class="nav-link active">Admin Dashboard</a></li>
+                    <li><a th:href="@{/logout}" class="nav-link">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 30px; margin-bottom: 50px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2>Admin Management Portal</h2>
+                <p style="color: #666;">Logged in as: <strong th:text="${adminUser.name}">Admin</strong> (<span th:text="${adminUser.email}">admin@lapanchina.com</span>)</p>
+            </div>
+            <a th:href="@{/}" class="btn btn-secondary">View Live Website &rarr;</a>
+        </div>
+
+        <!-- Link to the admin menu -->
+        <div class="card" style="margin-top: 1.5rem; text-align: left; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h3>Restaurant Menu Management</h3>
+                <p style="color: #666; margin: 0;">Add new dishes, update prices, or remove items.</p>
+            </div>
+            <a th:href="@{/admin/menu}" class="btn btn-primary">Manage Menu &rarr;</a>
+        </div>
+
+        <!-- User Accounts Table -->
+        <h3 style="margin-top: 2.5rem;">Registered Users in Database</h3>
+        <p style="color: #666; font-size: 0.95rem;">This view is restricted to administrators only.</p>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>Role</th>
+                    <th>Phone</th>
+                    <th>Updates</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.id}">1</td>
+                    <td style="font-weight: 600;" th:text="${u.name}">Name</td>
+                    <td th:text="${u.email}">email@example.com</td>
+                    <td>
+                        <span class="role-badge" 
+                              th:classappend="${u.role == 'ADMIN'} ? 'role-admin' : 'role-customer'" 
+                              th:text="${u.role}">ADMIN</span>
+                    </td>
+                    <td th:text="${u.phone != null and !u.phone.isEmpty()} ? ${u.phone} : '-'">-</td>
+                    <td th:text="${u.contactPreference}">EMAIL</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>

@@ -29,8 +29,8 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
-    public AuthController(UserRepository userRepository2){
-        this.userRepository = userRepository2;
+    public AuthController(UserRepository userRepository){
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/signup")
@@ -111,7 +111,11 @@ public class AuthController {
         // Save to session using professor's key name
         request.getSession().setAttribute("session_user", user);
         redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + user.getName() + "!");
-        return "redirect:/";
+        if("ADMIN".equalsIgnoreCase(user.getRole())){
+            return "redirect:/admin";
+        } else{
+            return "redirect:/";
+        }
     }
     
 }

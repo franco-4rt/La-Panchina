@@ -39,8 +39,9 @@
 
                     <!-- Login as admin -->
                     <li th:if="${session.session_user != null and session.session_user.role == 'ADMIN'}">
-                        <span class="nav-link" style="color: var(--color-terracotta); font-weight: 600;" th:text="'Admin, ' + ${session.session_user.name}"></span>
+                        <a th:href="@{/admin}" href="/admin" class="nav-link">Admin Dashboard</a>
                     </li>
+
 
                     <!-- Logout -->
                     <li th:if="${session.session_user != null}">
