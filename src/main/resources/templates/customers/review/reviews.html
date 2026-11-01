@@ -55,10 +55,16 @@
 
             <h1 class="section-title">Customer Reviews</h1>
             <p>See what our customers think about La Panchina.</p>
-
-            <a class="btn btn-primary" th:href="@{/reviews/create}">
-                Write a Review
-            </a>
+            <div th:unless="${hasReview}"> <!--It will show this button unless you already have a review-->
+                <a class="btn btn-primary" th:href="@{/reviews/create}">
+                    Write a Review
+                </a>
+            </div>
+            <div th:if="${session.session_user != null and hasReview}">
+                <a class="btn btn-primary" th:href="@{/reviews/edit}">
+                    Edit the Review 
+                </a>
+            </div>
 
             <div class="grid grid-2">
                 <div class="card" th:each="review : ${reviews}">

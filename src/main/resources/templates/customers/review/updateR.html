@@ -3,9 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Create new Review</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    
+
+    <!-- Shared Navigation Bar -->
+    <header class="site-header" th:fragment="navbar">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" href="/" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" src="../static/images/logo.jpg" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" href="/" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/menu}" href="/menu" class="nav-link">Menu</a></li>
+                    <li><a th:href="@{/reservations}" href="/reservations" class="nav-link">Book a Table</a></li>
+                    <li><a th:href="@{/reviews}" href="/reviews" class="nav-link active">Reviews &amp; Find Us</a></li>
+
+                    <li th:if="${session.session_user == null}">
+                        <a th:href="@{/login}" href="/login" class="nav-link">Login</a>
+                    </li>
+
+                    <li th:if="${session.session_user == null}">
+                        <a th:href="@{/signup}" href="/signup" class="nav-link">Sign Up</a>
+                    </li>
+                    
+                    <!-- Login as customer -->
+                    <li th:if="${session.session_user != null and session.session_user.role == 'CUSTOMER'}">
+                        <span class="nav-link" th:text="'Welcome, ' + ${session.session_user.name}"></span>
+                    </li>
+
+                    <!-- Login as admin -->
+                    <li th:if="${session.session_user != null and session.session_user.role == 'ADMIN'}">
+                        <a th:href="@{/admin}" href="/admin" class="nav-link">Admin Dashboard</a>
+                    </li>
+
+                    <!-- Logout -->
+                    <li th:if="${session.session_user != null}">
+                        <a th:href="@{/logout}" href="/logout" class="nav-link">Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class = "section"> <!--A container that has inside itself the form to eddit a review-->
+        <div class = "container">
+            <h1 class="section-title">Edit Your Review</h1> 
+            <!--the form uses the action to know where to send the data from the form and the key($) to get the object-->
+            <form th:action="@{/reviews/edit}" th:object="${reviewS}" method="post">
+                <div class="input-container">
+                    <label class = "input-title" for="rating">Rating [1-5]:</label>
+                        <select id="rating" class = "input-box" th:field="*{rating}">
+                            <option value = "">Select a rating</option>
+                            <option value = "1">1 - Poor</option>
+                            <option value = "2">2 - Fair</option>
+                            <option value = "3">3 - Good</option>
+                            <option value = "4">4 - Very Good</option>
+                            <option value = "5">5 - Excellent</option>
+                        </select>
+                    <div th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}" class="text-error">
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <label class="input-title" for="comment">Comment:</label>
+                        <input class = "input-box" type="text" id="comment" th:field="*{comment}" name="comment" placeholder="Comment is Optional">
+                        <div th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}" class="text-error">
+                        </div>
+                </div>
+
+                <div>
+                    <input class="btn btn-primary" type="submit" value="SEND"></input>
+                </div>
+                
+            </form>
+            <div class="btn btn-secondary">
+                <a th:href="@{/reviews}">Return</a>
+            </div>
+        </div>
 </body>
 </html>
