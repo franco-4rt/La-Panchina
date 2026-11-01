@@ -22,7 +22,6 @@ public class MenuItemModel {
     @NotBlank 
     private  String category;
 
-    @NotBlank 
     private  String description;
 
     @NotNull 

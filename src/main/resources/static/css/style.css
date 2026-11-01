@@ -306,3 +306,57 @@ a:hover {
   color: #8c8279;
   text-align: center;
 }
+
+/* Menu page */
+.title-compact {
+  padding: 3rem 0;
+}
+
+.menu-container {
+  max-width: 760px;
+}
+
+.menu-list {
+  list-style: none;
+}
+
+.menu-row {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.menu-row:last-child {
+  border-bottom: none;
+}
+
+.menu-row-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.menu-name {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.menu-dots {
+  flex: 1;
+  border-bottom: 2px dotted var(--color-border);
+  transform: translateY(-4px);
+}
+
+.menu-price {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-terracotta);
+}
+
+.menu-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: #6b625d;
+  max-width: 85%;
+}

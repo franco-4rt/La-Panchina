@@ -3,17 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Page</title>
+    <title>Menu | La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <header>
 
-    </header>
-    <body>
-        
-    </body>
-    <footer>
-        
-    </footer>
+    <header th:replace="~{index :: navbar}"> </header>
+
+    <main>
+        <section class="title-section title-compact">
+            <div class="container text-center">
+                <h1>Menu Desayunos</h1>
+                <p class="title-subtitle">Cucina Italiana</p>
+            </div>
+        </section>
+
+        <section class="section" th:if="${#maps.isEmpty(grouped)}">
+            <div class="container text-center">
+                <p>The menu is being updated. Please check back soon.</p>
+            </div>
+        </section>
+
+        <section class="section" th:each="entry,stat : ${grouped}" 
+                th:classappend="${stat.odd} ? 'section-alt">
+            <div class="container menu-container">
+                <h2 class="text-center section-title" th:text="${entry.value}">Category</h2>
+
+                <ul class="menu-list">
+                    <li class="menu-row" th:each="${entry.value}">
+                        <div class="menu-row-main">
+                            <span class="menu-name" th:text="${item.name}">Dish name</span>
+                            <span class="menu-dots"></span>
+                            <span class="menu-price"
+                                    th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 0)}">$0</span>
+                        </div>
+                        <p class="mnu-desc" th:if="${!#strings.isEmpty(item.description)}"
+                            th:text="${item.description}">Description</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{index :: footer}"></footer>
+
 </body>
 </html>
