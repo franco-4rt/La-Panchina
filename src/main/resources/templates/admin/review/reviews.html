@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Management</title>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>USER</th>
+                <th>RATING</th>
+                <th>COMMENT</th>
+                <th>DATE SUBMMITED</th>
+                <th>DATE UPDATED</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="review :${reviews}">
+                <td th:text="${review.rid}"></td>
+                <td th:text="${review.user}"></td>
+                <td th:text="${review.rating} + '/5'"></td>
+                <td th:text="${review.comment}"></td>
+                <td th:text="${review.dateSubmitted}"></td>
+                <td th:text="${review.dateUpdated}"></td>
+                <td>
+                    <a th:action="@{admin/reviews/deleteR/{id}(id=${review.rid})}">DELETE</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>CONFIRMATION OF DELETION</h1>
+    
+    <p>
+        Are you sure you want to delete review
+        <strong th:text="${review.rid}"></strong>?
+    </p>
+
+    <section> <!--All information about the review so the admin makes sure it is the correct one -->
+        <h3>Review Information</h3>
+        <p>
+            <strong>Rating:</strong>
+            <span th:text="${review.rating}"></span>/5 <!--All reviews are n/5 stars-->
+        </p>
+        <p>
+            <strong>Comment:</strong>
+            <span th:text="${review.comment}"></span> <!--What the review is about-->
+        </p>
+    </section>
+    <form th:action="@{/admin/review/deleteR/{id}(id=${review.id})}" method="post">
+        <div> <!--Action area, either return or confirm deletion-->
+            <button type="submit">Confirm Deletion</button>
+            <a th:href="/admin/review/reviews">Return</a>
+        </div>
+    </form>
+</body>
+</html>
