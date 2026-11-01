@@ -8,7 +8,7 @@
 <body>
     <div> <!--A container that has inside itself the form to add a new review-->
              <!--the form uses the action to know where to send the data from the form and the key($) to get the object-->
-            <form th:action="@{/customer/review/createR}" th:object="${reviews}" method="post">
+            <form th:action="@{/reviews/create}" th:object="${reviewS}" method="post">
                     <label for="rating">Rating [1-5]:</label>
                         <select id="rating" name="rating" >
                             <option>Select a rating</option>
@@ -32,7 +32,7 @@
                     </div>
             </form>
             <div>
-                <a th:href="@{/customer/review/reviews}">Return</a>
+                <a th:href="@{/reviews}">Return</a>
             </div>
 </body>
 </html>

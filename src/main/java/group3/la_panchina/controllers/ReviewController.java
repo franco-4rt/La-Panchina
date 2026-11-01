@@ -18,30 +18,29 @@ public class ReviewController {
     @Autowired
     private ReviewRepository reviewRepo;
 
-    @GetMapping("/customers/review/reviews")
+    @GetMapping("/reviews")
     public String seeReviews(Model model) {
 
         //check whether the user already has a review(if he has only allow him to edit previous review)
-        model.addAttribute("review", reviewRepo.findAll());
-        return "review"; //dont put customers/ as to avoid giving xustomers the information 
-        // that there also exists a Administrator part.
+        model.addAttribute("reviews", reviewRepo.findAll());
+        return "customers/review/reviews";
     }
 
-    @GetMapping("/customers/review/createR")
+    @GetMapping("/reviews/create")
     public String createReviewForm(Model model) {
         //check whether the user is logged in as a customer(admins and guest won't be able to add reviews)
         model.addAttribute("reviewS", new Review());
-        return "review/create";
+        return "customers/review/createR";
     }
 
-    @PostMapping("/customer/review/createR")
+    @PostMapping("/review/create")
     public String submitcreateForm(@Valid @ModelAttribute("review") Review rev , BindingResult result){
         if(result.hasErrors()){
-            return "review/create";
+            return "customers/review/createR";
         }
         else{
             reviewRepo.save(rev);
-            return "reviews";
+            return "redirect:/reviews";
         }
     }
     

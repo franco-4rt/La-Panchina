@@ -24,10 +24,10 @@
             <span th:text="${review.comment}"></span> <!--What the review is about-->
         </p>
     </section>
-    <form th:action="@{/admin/review/deleteR/{id}(id=${review.id})}" method="post">
+    <form th:action="@{/admin/reviews/delete/{rid}(rid=${review.rid})}" method="post">
         <div> <!--Action area, either return or confirm deletion-->
             <button type="submit">Confirm Deletion</button>
-            <a th:href="/admin/review/reviews">Return</a>
+            <a th:href="@{/admin/reviews}">Return</a>
         </div>
     </form>
 </body>

@@ -11,12 +11,12 @@
         <h1>Customer Reviews</h1>
         <p>See what our customers think about La Panchina.</p>
 
-        <a th:href="@{/customer/review/createR}">
+        <a th:href="@{/reviews/create}">
             Write a Review
         </a>
 
         <div class="review-card" th:each="review : ${reviews}">
-            <h3 th:text="${review.user}"></h3> <!--This is a template as to what the user part may look like-->
+            <h3 th:text="${review.app_user}"></h3> <!--This is a template as to what the user part may look like-->
             <p>
                 Rating:
                 <span th:text="${review.rating}"></span>/5

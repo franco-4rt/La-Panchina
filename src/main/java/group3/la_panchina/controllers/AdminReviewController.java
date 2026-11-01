@@ -20,37 +20,39 @@ public class AdminReviewController {
     @Autowired
     private ReviewRepository reviewRepo;
 
-    @GetMapping("/admin/review/reviews")
+    @GetMapping("/admin/reviews")
     public String showReviewsAdmin(Model model) {
         //add a checker for the user status(admin or customer/not logged in)
             //if not admin redirect to login
 
         model.addAttribute("reviews", reviewRepo.findAll());
 
-        return "admin/reviews";
+        return "admin/review/reviews";
     }
     
-    @GetMapping("/admin/review/deleteR/{id}")
-    public String showDeleteConfirmation(@PathVariable Long id, Model model) {
-        Review review = reviewRepo.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"review not found"));
+    @GetMapping("/admin/delete/{rid}")
+    public String showDeleteConfirmation(@PathVariable Long rid, Model model) {
         //add a checker for the user status(admin or customer/not logged in)
             //if not admin redirect to login
 
+        Review review = reviewRepo.findById(rid)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
+        
+
         model.addAttribute("reviews", review);
 
-        return "admin/reviews/delete";
+        return "admin/review/deleteR";
     }
 
-    @PostMapping("/admin/review/deleteR/{id}")
-    public String deleteReview(@PathVariable Long id) {
+    @PostMapping("/admin/delete/{rid}")
+    public String deleteReview(@PathVariable Long rid) {
         
         //add a checker for the user status(admin or customer/ not logged in)
             //if not admin redirect to login
 
-        reviewRepo.deleteById(id);
+        reviewRepo.deleteById(rid);
 
-        return "redirect:/admin/review/reviews";
+        return "redirect:/admin/reviews";
     }
     
 }

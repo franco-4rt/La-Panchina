@@ -23,7 +23,7 @@ public class Review {
     private Long rid; //review id
 
     @Email
-    private String user; //At the moment it is simply an email but will be later integrated with the Login/user
+    private String app_user; //At the moment it is simply an email but will be later integrated with the Login/user
 
     @Min(value = 1)
     @Max(value = 5)
@@ -55,8 +55,8 @@ public class Review {
         return rid;
     }
 
-    public String getUser() {
-            return user;
+    public String getAppUser() {
+            return app_user;
     }
 
     public String getComment(){
@@ -79,8 +79,8 @@ public class Review {
         this.rid = rid;
     }
 
-    public String setUser(String user){
-        return this.user = user;
+    public String setUser(String app_user){
+        return this.app_user = app_user;
     }
 
     public Integer setRating(Integer rating){
