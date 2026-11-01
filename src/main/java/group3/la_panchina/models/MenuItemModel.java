@@ -42,7 +42,7 @@ public class MenuItemModel {
     @PositiveOrZero(message = "Price cannot be negative")
     private  double price;
 
-    protected MenuItemModel(){}
+    public MenuItemModel(){}
 
     public MenuItemModel(String category, String description, String name, double price, MenuType menuType) {
         this.category = category;
@@ -54,13 +54,25 @@ public class MenuItemModel {
 
     public Long getId() {return id;}
 
+    public void setId(Long id){this.id = id;}
+
     public String getName() {return name;}
+
+    public void setName(String name) {this.name = name; }
 
     public String getCategory() {return category;}
 
+    public void setCategory(String category) {this.category = category;}
+
     public String getDescription() {return description;}
+
+    public void setDescription(String description) {this.description = description;}
 
     public double getPrice() {return price;}
 
+    public void setPrice(double price) { this.price = price;}
+
     public MenuType getMenuType() { return menuType; }
+
+    public void setMenuType(MenuType menuType) {this.menuType = menuType;}
 }
