@@ -3,10 +3,9 @@ package group3.la_panchina.models;
 import java.io.Serializable;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity 
@@ -35,7 +34,10 @@ public class User implements Serializable{
     @Column (nullable = false, length = 20)
     private String role = "CUSTOMER";
 
-    @Column (length = 20)
+    @NotBlank (message = "Phone number is required")
+    @Pattern (regexp = "^(\\+?\\d{1,2}\\s?)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$", 
+             message = "Please enter a valid 10-digit phone number (e.g. 555-123-4567)")
+    @Column (nullable = false, length = 20)
     private String phone;
 
     @Column (length = 10)

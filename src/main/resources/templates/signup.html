@@ -56,8 +56,9 @@
 
                 <!-- Phone -->
                 <div class="input-container">
-                    <label for="phone" class="input-title">Phone (Optional)</label>
-                    <input class="input-box" type="tel" id="phone" th:field="*{phone}" placeholder="(555) 123-4567">
+                    <label for="phone" class="input-title">Phone (Required)</label>
+                    <input class="input-box" type="tel" id="phone" th:field="*{phone}" placeholder="(555) 123-4567" required>
+                    <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="warning-message"></p>
                 </div>
 
                 <!-- Contact Preference -->

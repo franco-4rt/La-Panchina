@@ -77,7 +77,8 @@ public class AuthControllerTest {
             mockMvc.perform(post("/signup")
                     .param("name", "Alice")
                     .param("email", "alice@example.com")
-                    .param("password", "secret123"))
+                    .param("password", "secret123")
+                    .param("phone", "555-123-4567"))
                     .andExpect(status().is3xxRedirection())
                     .andExpect(redirectedUrl("/"))
                     .andExpect(flash().attributeExists("successMessage"));
