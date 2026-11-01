@@ -93,6 +93,6 @@ public class AdminMenuController {
         model.addAttribute("types", MenuType.values());
         model.addAttribute("formAction", action);
         model.addAttribute("formTitle", title);
-    return "admin/menuAdd";
+    return "menuAdd";
     }
 }
