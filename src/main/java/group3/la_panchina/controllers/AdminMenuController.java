@@ -21,6 +21,7 @@ import jakarta.validation.Valid;
 
 
 
+
 @Controller 
 @RequestMapping ("/admin/menu")
 public class AdminMenuController {
@@ -85,6 +86,12 @@ public class AdminMenuController {
         return "redirect:/admin/menu";
     }
     
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable Long id, HttpSession session) {
+        if (!isAdmin(session)) return deny(session);
+        repo.deleteById(id);
+        return "redirec:/admin/menu";
+    }
     
 
     private String form(Model model, String action, String title) {

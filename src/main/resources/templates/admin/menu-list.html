@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Menu | La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <header th:replace="~{index :: navbar}"></header>
+
+    <main>
+        <section class="title-section title-compact">
+            <div class="container text-center">
+                <h1>Manage Menu</h1>
+                <div class="title-actions">
+                    <a th:href="@{/admin/menu/new}" class="btn btn-primary">+ New dish</a>
+                    <a th:href="@{/menu}" class="btn btn-secondary">View public menu</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <p class="text-center" th:if="${#lists.isEmpty(items)}">No dishes yet.</p>
+
+                <div class="admin-table-wrap" th:unless="${#lists.isEmpty(items)}">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Menu</th>
+                                <th>Category</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${items}">
+                                <td th:text="${item.menuType}">BREAKFAST</td>
+                                <td th:text="${item.category}">Bebidas</td>
+                                <td th:text="${item.name}">Espresso</td>
+                                <td th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 0)}">$60</td>
+                                <td>
+                                    <div class="admin-actions">
+                                        <a th:href="@{/admin/menu/{id}/edit(id=${item.id})}"
+                                        class="btn btn-secondary btn-small">Edit</a>
+                                        <form th:action="@{/admin/menu/{id}/delete(id=${item.id})}" method="post"
+                                            onsubmit="return confirm('Delete this dish?');">
+                                            <button type="submit" class="btn btn-primary btn-small">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{index :: footer}"></footer>
+
+</body>
+</html>

@@ -360,3 +360,59 @@ a:hover {
   color: #6b625d;
   max-width: 85%;
 }
+
+/* Admin */
+.admin-table-wrap { overflow-x: auto; }
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table th {
+  background: var(--color-surface-warm);
+  font-family: var(--font-serif);
+}
+
+.admin-actions { display: flex; gap: 0.5rem; align-items: center; }
+.admin-actions form { margin: 0; }
+
+.btn-small { padding: 0.35rem 0.9rem; font-size: 0.85rem; }
+
+.admin-form-wrap { max-width: 560px; }
+
+.admin-form label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font: inherit;
+  background: var(--color-surface);
+}
+
+.field-error {
+  color: var(--color-terracotta);
+  font-size: 0.9rem;
+  margin: -0.6rem 0 1rem;
+}
+
+.admin-form-buttons { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
