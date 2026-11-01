@@ -9,7 +9,7 @@
 </head>
 <body>
 
-        <header class="site-header" th:fragment="navbar">
+    <header class="site-header" th:fragment="navbar">
         <div class="container">
             <nav class="nav-wrapper">
                 <a th:href="@{/}" href="/" class="brand-logo">
@@ -22,8 +22,29 @@
                     <li><a th:href="@{/menu}" href="/menu" class="nav-link active">Menu</a></li>
                     <li><a th:href="@{/reservations}" href="/reservations" class="nav-link">Book a Table</a></li>
                     <li><a th:href="@{/reviews}" href="/reviews" class="nav-link">Reviews &amp; Find Us</a></li>
-                    <li><a th:href="@{/admin}" href="/admin" class="nav-link">Admin</a></li>
-                    <li><a th:href="@{/login}" href="/login" class="nav-link">Login</a></li>
+
+                    <li th:if="${session.session_user == null}">
+                        <a th:href="@{/login}" href="/login" class="nav-link">Login</a>
+                    </li>
+
+                    <li th:if="${session.session_user == null}">
+                        <a th:href="@{/signup}" href="/signup" class="nav-link">Sign Up</a>
+                    </li>
+                    
+                    <!-- Login as customer -->
+                    <li th:if="${session.session_user != null and session.session_user.role == 'CUSTOMER'}">
+                        <span class="nav-link" th:text="'Welcome, ' + ${session.session_user.name}"></span>
+                    </li>
+
+                    <!-- Login as admin -->
+                    <li th:if="${session.session_user != null and session.session_user.role == 'ADMIN'}">
+                        <a th:href="@{/admin}" href="/admin" class="nav-link">Admin Dashboard</a>
+                    </li>
+
+                    <!-- Logout -->
+                    <li th:if="${session.session_user != null}">
+                        <a th:href="@{/logout}" href="/logout" class="nav-link">Logout</a>
+                    </li>
                 </ul>
             </nav>
         </div>

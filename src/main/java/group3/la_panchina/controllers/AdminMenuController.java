@@ -61,7 +61,7 @@ public class AdminMenuController {
         return "redirect:/admin/menu";
     }
     
-    @GetMapping("/{id}/edit")
+    @GetMapping("/edit/{id}")
     public String editForm(@PathVariable Long id, HttpSession session, Model model) {
         if (notAdmin(session)) return "redirect:/login";
         MenuItemModel item = repo.findById(id).orElse(null);
@@ -81,11 +81,11 @@ public class AdminMenuController {
         return "redirect:/admin/menu";
     }
     
-    @PostMapping("/{id}/delete")
+    @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id, HttpSession session) {
         if (notAdmin(session)) return "redirect:/login";
         repo.deleteById(id);
-        return "redirec:/admin/menu";
+        return "redirect:/admin/menu";
     }
     
 

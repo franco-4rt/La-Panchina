@@ -45,9 +45,9 @@
                                 <td th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 0)}">$60</td>
                                 <td>
                                     <div class="admin-actions">
-                                        <a th:href="@{/admin/menu/{id}/edit(id=${item.id})}"
+                                        <a th:href="@{/admin/menu/edit/{id}(id=${item.id})}"
                                         class="btn btn-secondary btn-small">Edit</a>
-                                        <form th:action="@{/admin/menu/{id}/delete(id=${item.id})}" method="post"
+                                        <form th:action="@{/admin/menu/delete/{id}(id=${item.id})}" method="post"
                                             onsubmit="return confirm('Delete this dish?');">
                                             <button type="submit" class="btn btn-primary btn-small">Delete</button>
                                         </form>
