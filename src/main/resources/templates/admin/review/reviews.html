@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Review Management</title>
+    <link rel="stylesheet" th:href="@{static/css/style.css}">
 </head>
 <body>
-    <table>
+    <table class="admin-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -21,13 +22,14 @@
         <tbody>
             <tr th:each="review :${reviews}">
                 <td th:text="${review.rid}"></td>
-                <td th:text="${review.app_user}"></td>
+                <td th:text="${review.app_user.name}"></td>
                 <td th:text="${review.rating} + '/5'"></td>
                 <td th:text="${review.comment}"></td>
                 <td th:text="${review.createdAt}"></td>
                 <td th:text="${review.updatedAt}"></td>
                 <td>
-                    <a th:href="@{/admin/reviews/delete/{rid}(rid=${review.rid})}">DELETE</a>
+                    <a class="btn btn-primary" 
+                    th:href="@{/admin/reviews/delete/{rid}(rid=${review.rid})}">DELETE</a>
                 </td>
             </tr>
         </tbody>

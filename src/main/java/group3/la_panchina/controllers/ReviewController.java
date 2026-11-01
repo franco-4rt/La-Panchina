@@ -48,7 +48,7 @@ public class ReviewController{
     }
 
     @PostMapping("/reviews/create")
-    public String submitcreateForm(@Valid @ModelAttribute("review") Review rev,
+    public String submitcreateForm(@Valid @ModelAttribute("reviewS") Review rev,
     BindingResult bind, HttpServletResponse response, HttpSession session){
         
         User user = (User) session.getAttribute("session_user");
@@ -67,7 +67,7 @@ public class ReviewController{
             return "customers/review/createR";
         }
         else{
-            rev.setApp_user(user.getId());
+            rev.setUser(user);
             reviewRepo.save(rev);
             return "redirect:/reviews";
         }

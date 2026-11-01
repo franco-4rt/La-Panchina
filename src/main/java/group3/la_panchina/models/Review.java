@@ -6,24 +6,26 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 @Entity 
 @Table (name="review")
-public class Review {
+public class Review { 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rid; //review id
 
-    @Email
-    private String app_user; //At the moment it is simply an email but will be later integrated with the Login/user
+    @OneToOne //One review can only be associated to One user
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User app_user;
 
     @Min(value = 1)
     @Max(value = 5)
@@ -48,14 +50,19 @@ public class Review {
     }
 
     public Review(){
+    }
 
-    };
+    public Review(User app_user, String comment, Integer rating) {
+        this.app_user = app_user;
+        this.comment = comment;
+        this.rating = rating;
+    }
 
     public Long getRid() {
         return rid;
     }
 
-    public String getAppUser() {
+    public User getAppUser() {
             return app_user;
     }
 
@@ -79,16 +86,16 @@ public class Review {
         this.rid = rid;
     }
 
-    public String setUser(String app_user){
-        return this.app_user = app_user;
+    public void setUser(User app_user){
+        this.app_user = app_user;
     }
 
-    public Integer setRating(Integer rating){
-        return this.rating = rating;
+    public void setRating(Integer rating){
+        this.rating = rating;
     }
 
-    public String setComment(String comment){
-        return this.comment = comment;
+    public void setComment(String comment){
+        this.comment = comment;
     }
 
 

@@ -3,32 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Deletion Confirmation</title>
+    <link rel="stylesheet" th:href="@{static/css/style.css}">
 </head>
 <body>
-    <h1>CONFIRMATION OF DELETION</h1>
-    
-    <p>
-        Are you sure you want to delete review
-        <strong th:text="${review.rid}"></strong>?
-    </p>
+    <div class="section">
+        <div class="card">
+            <h1>CONFIRMATION OF DELETION</h1>
+            
+            <p>
+                Are you sure you want to delete review
+                <strong th:text="${review.rid}"></strong>?
+            </p>
 
-    <section> <!--All information about the review so the admin makes sure it is the correct one -->
-        <h3>Review Information</h3>
-        <p>
-            <strong>Rating:</strong>
-            <span th:text="${review.rating}"></span>/5 <!--All reviews are n/5 stars-->
-        </p>
-        <p>
-            <strong>Comment:</strong>
-            <span th:text="${review.comment}"></span> <!--What the review is about-->
-        </p>
-    </section>
-    <form th:action="@{/admin/reviews/delete/{rid}(rid=${review.rid})}" method="post">
-        <div> <!--Action area, either return or confirm deletion-->
-            <button type="submit">Confirm Deletion</button>
-            <a th:href="@{/admin/reviews}">Return</a>
+            <section> <!--All Important information about the review so the admin makes sure it is the correct one -->
+                <h3>Review Information</h3>
+                <p>
+                    <strong>Rating:</strong>
+                    <span th:text="${review.rating}"></span>/5 <!--All reviews are n/5 stars-->
+                </p>
+                <p>
+                    <strong>Comment:</strong>
+                    <span th:text="${review.comment}"></span> <!--What the review is about-->
+                </p>
+            </section>
+            <form th:action="@{/admin/reviews/delete/{rid}(rid=${review.rid})}" method="post">
+                <div> <!--Action area, either return or confirm deletion-->
+                    <button class="btn btn-primary" type="submit">Confirm Deletion</button>
+                    <a class = "btn btn-secondary" th:href="@{/admin/reviews}">Return</a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </body>
 </html>

@@ -4,34 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" th:href="@{static/css/style.css}">
 </head>
 <body>
-    <div class="reviews-container">
+    <div class="section">
+        <div class="container">
 
-        <h1>Customer Reviews</h1>
-        <p>See what our customers think about La Panchina.</p>
+            <h1 class="section-title">Customer Reviews</h1>
+            <p>See what our customers think about La Panchina.</p>
 
-        <a th:href="@{/reviews/create}">
-            Write a Review
-        </a>
+            <a class="btn btn-primary" th:href="@{/reviews/create}">
+                Write a Review
+            </a>
 
-        <div class="review-card" th:each="review : ${reviews}">
-            <h3 th:text="${review.app_user}"></h3> <!--This is a template as to what the user part may look like-->
-            <p>
-                Rating:
-                <span th:text="${review.rating}"></span>/5
-            </p>
-            <p th:text="${review.comment}"></p>
-            <small>
-                Submitted:
-                <span th:text="${review.dateSubmitted}"></span>
-            </small>
-            <small th:if="${review.dateUpdated != null}">
-                Updated:
-                <span th:text="${review.dateUpdated}"></span>
-            </small>
+            <div class="grid grid-2">
+                <div class="card" th:each="review : ${reviews}">
+                    <h3 th:text="${review.app_user.name}"></h3> 
+                    <p>
+                        Rating:
+                        <span th:text="${review.rating}"></span>/5
+                    </p>
+                    <p th:text="${review.comment}"></p>
+                    <small>
+                        Submitted:
+                        <span th:text="${review.createdAt}"></span>
+                    </small>
+                    <small th:if="${review.updatedAt != null && review.updatedAt != review.createdAt}">
+                        Updated:
+                        <span th:text="${review.updatedAt}"></span>
+                    </small>
+                </div>
+            </div>
+
         </div>
-
     </div>
 </body>
 </html>

@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Create new Review</title>
+    <link rel="stylesheet" th:href="@{static/css/style.css}">
 </head>
 <body>
-    <div> <!--A container that has inside itself the form to add a new review-->
-             <!--the form uses the action to know where to send the data from the form and the key($) to get the object-->
+    <div class = "section"> <!--A container that has inside itself the form to add a new review-->
+        <div class = "container">
+            <h1 class="section-title">Write a Review</h1> 
+            <!--the form uses the action to know where to send the data from the form and the key($) to get the object-->
             <form th:action="@{/reviews/create}" th:object="${reviewS}" method="post">
-                    <label for="rating">Rating [1-5]:</label>
-                        <select id="rating" name="rating" >
+                <div class="input-container">
+                    <label class = "input-title" for="rating">Rating [1-5]:</label>
+                        <select id="rating" class = "input-box">
                             <option>Select a rating</option>
                             <option value = 1>1 - Poor</option>
                             <option value = 2>2 - Fair</option>
@@ -20,19 +24,23 @@
                         </select>
                     <div th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}" class="text-error">
                     </div>
+                </div>
 
-                    <div>
-                        <input type="text" id="comment" name="comment">
-                        placeholder="Comment is Optional">
+                <div class="input-container">
+                    <label class="input-title" for="comment">Comment:</label>
+                        <input class = "input-box" type="text" id="comment" name="comment" placeholder="Comment is Optional">
                         <div th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}" class="text-error">
                         </div>
-                    </div>
-                    <div>
-                        <input class="btn btn-primary" type="submit" value="SEND"></input>
-                    </div>
+                </div>
+
+                <div>
+                    <input class="btn btn-primary" type="submit" value="SEND"></input>
+                </div>
+                
             </form>
-            <div>
+            <div class="btn btn-secondary">
                 <a th:href="@{/reviews}">Return</a>
             </div>
+        </div>
 </body>
 </html>
