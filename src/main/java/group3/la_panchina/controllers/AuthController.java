@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 
@@ -55,7 +54,7 @@ public class AuthController {
         request.getSession().invalidate();
 
         redirectAttributes.addFlashAttribute("successMessage", "You have been logged out successfully.");
-        return "redirect:/"; // Redirects to homepage
+        return "redirect:/";
     }
 
     @GetMapping("/login")
@@ -72,7 +71,9 @@ public class AuthController {
                                 HttpSession session, 
                                 RedirectAttributes redirectAttributes){
         if(userRepository.existsByEmailIgnoreCase(user.getEmail()))
-            result.rejectValue("email", "duplicate.email", "An account with this email already exists.");
+            result.rejectValue("email", 
+                                "duplicate.email", 
+                                "An account with this email already exists.");
         
         if(result.hasErrors()){
             return "signup";
@@ -110,6 +111,7 @@ public class AuthController {
         response.setHeader("Expires", "0");
         // Save to session using professor's key name
         request.getSession().setAttribute("session_user", user);
+        
         redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + user.getName() + "!");
         if("ADMIN".equalsIgnoreCase(user.getRole())){
             return "redirect:/admin";
