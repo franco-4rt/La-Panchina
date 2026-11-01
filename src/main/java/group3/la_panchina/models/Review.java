@@ -25,7 +25,7 @@ public class Review {
 
     @OneToOne //One review can only be associated to One user
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User app_user;
+    private User appUser;
 
     @Min(value = 1)
     @Max(value = 5)
@@ -52,8 +52,8 @@ public class Review {
     public Review(){
     }
 
-    public Review(User app_user, String comment, Integer rating) {
-        this.app_user = app_user;
+    public Review(User appUser, String comment, Integer rating) {
+        this.appUser = appUser;
         this.comment = comment;
         this.rating = rating;
     }
@@ -63,7 +63,7 @@ public class Review {
     }
 
     public User getAppUser() {
-            return app_user;
+            return appUser;
     }
 
     public String getComment(){
@@ -86,8 +86,8 @@ public class Review {
         this.rid = rid;
     }
 
-    public void setUser(User app_user){
-        this.app_user = app_user;
+    public void setUser(User appUser){
+        this.appUser = appUser;
     }
 
     public void setRating(Integer rating){
