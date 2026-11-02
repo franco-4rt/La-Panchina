@@ -13,6 +13,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity 
@@ -27,8 +28,9 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User appUser;
 
-    @Min(value = 1)
-    @Max(value = 5)
+    @NotNull(message = "Choose a valid rating")
+    @Min(value = 1, message = "Choose a Number between 1-5")
+    @Max(value = 5, message = "choose a Number between 1-5")
     private Integer rating;
 
     @Size(max = 500, message = "Characters must not exceed 500 characters")
