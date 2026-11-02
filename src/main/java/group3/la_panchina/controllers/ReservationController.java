@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Controller
 @RequestMapping("/reservations")
 public class ReservationController {
@@ -30,10 +34,44 @@ public class ReservationController {
 
     // 2. HANDLE SUBMISSION: When user submits the form (POST /reservations)
     @PostMapping
-    public String submitBooking(@ModelAttribute Booking booking) {
-        // Save the booking to the database
+    public String submitBooking(@ModelAttribute Booking booking, Model model) {
+        // --- VALIDATION LOGIC ---
+
+        // 1. Check if date is in the past
+        if (booking.getDate() == null || booking.getDate().isBefore(LocalDate.now())) {
+            model.addAttribute("errorMessage", "Please select a future date.");
+            model.addAttribute("booking", booking); // Keeps the user's typed data
+            return "reservations";
+        }
+
+        // 2. Check if it's a Monday (Closed)
+        if (booking.getDate().getDayOfWeek() == DayOfWeek.MONDAY) {
+            model.addAttribute("errorMessage", "Sorry, the restaurant is closed on Mondays.");
+            model.addAttribute("booking", booking);
+            return "reservations";
+        }
+
+        // 3. Check Opening Hours (with 1-hour cutoff before closing)
+        LocalTime time = booking.getTime();
+        DayOfWeek day = booking.getDate().getDayOfWeek();
+        boolean validTime = false;
+
+        if (day == DayOfWeek.SUNDAY) {
+            // Sunday: Closes at 20:00 (8 PM), so last booking is 19:00 (7 PM)
+            validTime = !time.isBefore(LocalTime.of(8, 0)) && !time.isAfter(LocalTime.of(19, 0));
+        } else {
+            // Tue-Sat: Closes at 22:00 (10 PM), so last booking is 21:00 (9 PM)
+            validTime = !time.isBefore(LocalTime.of(8, 0)) && !time.isAfter(LocalTime.of(21, 0));
+        }
+
+        if (!validTime) {
+            model.addAttribute("errorMessage", "Please select a time within our opening hours (bookings close 1 hour before closing).");
+            model.addAttribute("booking", booking);
+            return "reservations";
+        }
+
+        // If all good, save
         bookingRepository.save(booking);
-        
         // Redirect back to the form with a success message in the URL
         return "redirect:/reservations?success=true";
     }
