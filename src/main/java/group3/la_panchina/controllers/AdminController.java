@@ -1,17 +1,17 @@
 package group3.la_panchina.controllers;
 
 
-import group3.la_panchina.models.User;
-import group3.la_panchina.repositories.UserRepository;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import group3.la_panchina.models.User;
+import group3.la_panchina.repositories.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 
 @Controller 
