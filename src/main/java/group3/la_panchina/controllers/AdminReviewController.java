@@ -63,7 +63,7 @@ public class AdminReviewController {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
         
 
-        model.addAttribute("reviews", review);
+        model.addAttribute("review", review);
 
         return "admin/review/deleteR";
     }
