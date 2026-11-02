@@ -34,6 +34,7 @@ public class UserDataSetup implements CommandLineRunner {
                 passwordEncoder.encode(adminPassword),
                 "ADMIN"
             );
+            admin.setPhone("123-456-7890");
             userRepository.save(admin);
             System.out.println("Admin account created: " + adminEmail);
         }
@@ -46,6 +47,7 @@ public class UserDataSetup implements CommandLineRunner {
                 passwordEncoder.encode("password123"),
                 "CUSTOMER"
             );
+            customer.setPhone("098-765-4321");
             userRepository.save(customer);
             System.out.println("Tetsing customer created: customer@test.com");
         }
