@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu | La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <header class="site-header" th:fragment="navbar">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" href="/" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" src="../static/images/logo.jpg" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" href="/" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/menu}" href="/menu" class="nav-link active">Menu</a></li>
+                    <li><a th:href="@{/reservations}" href="/reservations" class="nav-link">Book a Table</a></li>
+                    <li><a th:href="@{/reviews}" href="/reviews" class="nav-link">Reviews &amp; Find Us</a></li>
+
+                    <li th:if="${session.session_user == null}">
+                        <a th:href="@{/login}" href="/login" class="nav-link">Login</a>
+                    </li>
+
+                    <li th:if="${session.session_user == null}">
+                        <a th:href="@{/signup}" href="/signup" class="nav-link">Sign Up</a>
+                    </li>
+                    
+                    <!-- Login as customer -->
+                    <li th:if="${session.session_user != null and session.session_user.role == 'CUSTOMER'}">
+                        <span class="nav-link" th:text="'Welcome, ' + ${session.session_user.name}"></span>
+                    </li>
+
+                    <!-- Login as admin -->
+                    <li th:if="${session.session_user != null and session.session_user.role == 'ADMIN'}">
+                        <a th:href="@{/admin}" href="/admin" class="nav-link">Admin Dashboard</a>
+                    </li>
+
+                    <!-- Logout -->
+                    <li th:if="${session.session_user != null}">
+                        <a th:href="@{/logout}" href="/logout" class="nav-link">Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="title-section title-compact">
+            <div class="container text-center">
+                <h1 th:text="${type.name() == 'BREAKFAST'} ? 'Menú Desayunos' : 'Menú Cena'">Menú</h1>
+                <p class="title-subtitle">Cucina Italiana</p>
+                <div class="title-actions">
+                    <a th:href="@{/menu(type='BREAKFAST')}" class="btn"
+                    th:classappend="${type.name() == 'BREAKFAST'} ? 'btn-primary' : 'btn-secondary'">Breakfast</a>
+                    <a th:href="@{/menu(type='DINNER')}" class="btn"
+                    th:classappend="${type.name() == 'DINNER'} ? 'btn-primary' : 'btn-secondary'">Dinner</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" th:if="${#maps.isEmpty(grouped)}">
+            <div class="container text-center">
+                <p>The menu is being updated. Please check back soon.</p>
+            </div>
+        </section>
+
+        <section class="section" th:each="entry,stat : ${grouped}" 
+                th:classappend="${stat.odd} ? 'section-alt'">
+            <div class="container menu-container">
+                <h2 class="text-center section-title" th:text="${entry.key}">Category</h2>
+
+                <ul class="menu-list">
+                    <li class="menu-row" th:each="item: ${entry.value}">
+                        <div class="menu-row-main">
+                            <span class="menu-name" th:text="${item.name}">Dish name</span>
+                            <span class="menu-dots"></span>
+                            <span class="menu-price"
+                                    th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 0)}">$0</span>
+                        </div>
+                        <p class="mnu-desc" th:if="${!#strings.isEmpty(item.description)}"
+                            th:text="${item.description}">Description</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{index :: footer}"></footer>
+
+</body>
+</html>

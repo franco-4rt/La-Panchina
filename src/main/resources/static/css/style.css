@@ -342,6 +342,60 @@ a:hover {
   text-align: center;
 }
 
+/* Menu page */
+.title-compact {
+  padding: 3rem 0;
+}
+
+.menu-container {
+  max-width: 760px;
+}
+
+.menu-list {
+  list-style: none;
+}
+
+.menu-row {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.menu-row:last-child {
+  border-bottom: none;
+}
+
+.menu-row-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.menu-name {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.menu-dots {
+  flex: 1;
+  border-bottom: 2px dotted var(--color-border);
+  transform: translateY(-4px);
+}
+
+.menu-price {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-terracotta);
+}
+
+.menu-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: #6b625d;
+  max-width: 85%;
+}
+
 /* Message */
 .warning-message {
   background-color: #fdeeed;
@@ -367,7 +421,9 @@ a:hover {
   font-weight: 600;
 }
 
-/* Admin Dashboard & Tables*/
+/* Admin Dashboard & Tables */
+.admin-table-wrap { overflow-x: auto; }
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -387,9 +443,43 @@ a:hover {
 
 .admin-table th {
   background-color: var(--color-surface-warm);
+  font-family: var(--font-serif);
   font-weight: 600;
   color: var(--color-text);
 }
+
+.admin-actions { display: flex; gap: 0.5rem; align-items: center; }
+.admin-actions form { margin: 0; }
+
+.btn-small { padding: 0.35rem 0.9rem; font-size: 0.85rem; }
+
+.admin-form-wrap { max-width: 560px; }
+
+.admin-form label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font: inherit;
+  background: var(--color-surface);
+}
+
+.field-error {
+  color: var(--color-terracotta);
+  font-size: 0.9rem;
+  margin: -0.6rem 0 1rem;
+}
+
+.admin-form-buttons { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
 
 .role-badge {
   display: inline-block;
@@ -407,19 +497,4 @@ a:hover {
 .role-customer {
   background-color: #eaf3eb;
   color: var(--color-olive);
-}
-
-.management-card{
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  transition: var(--transition);
-  margin-top: 1.5rem; 
-  text-align: left; 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  flex-wrap: wrap; 
-  gap: 1rem;
 }
