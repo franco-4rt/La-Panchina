@@ -1,6 +1,7 @@
 package group3.la_panchina.controllers;
 
 import group3.la_panchina.models.Booking;
+import group3.la_panchina.models.User;
 import group3.la_panchina.repositories.BookingRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import jakarta.servlet.http.HttpSession;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -26,16 +28,30 @@ public class ReservationController {
 
     // 1. SHOW THE FORM: When user visits GET /reservations
     @GetMapping
-    public String showBookingForm(Model model) {
+    public String showBookingForm(HttpSession session, Model model) {
+        // 1. Check if user is logged in
+        User user = (User) session.getAttribute("session_user");
+        if (user == null) {
+            return "redirect:/login"; // Redirect to login if not authenticated
+        }
+        // 2. Pre-fill the booking name with the logged-in user's name
+        Booking booking = new Booking();
+        booking.setName(user.getName());
+        
         // Create an empty Booking object for the HTML form to bind to
-        model.addAttribute("booking", new Booking());
+        model.addAttribute("booking", booking);
         return "reservations"; // Tells Spring to look for reservations.html
     }
 
     // 2. HANDLE SUBMISSION: When user submits the form (POST /reservations)
     @PostMapping
-    public String submitBooking(@ModelAttribute Booking booking, Model model) {
+    public String submitBooking(@ModelAttribute Booking booking, HttpSession session, Model model) {
         // --- VALIDATION LOGIC ---
+        // 0. Double-check session on POST
+        User user = (User) session.getAttribute("session_user");
+        if (user == null) {
+            return "redirect:/login";
+        }
 
         // 1. Check if date is in the past
         if (booking.getDate() == null || booking.getDate().isBefore(LocalDate.now())) {
@@ -71,6 +87,9 @@ public class ReservationController {
         }
 
         // If all good, save
+        // 4. Link the booking to the logged-in user before saving
+        booking.setUser(user);
+
         bookingRepository.save(booking);
         // Redirect back to the form with a success message in the URL
         return "redirect:/reservations?success=true";

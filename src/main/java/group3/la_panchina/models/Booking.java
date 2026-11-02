@@ -12,8 +12,13 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    
+    // Link to the User who made the booking
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    private String name; // Kept for form display, but now backed by user relationship
+
     private LocalDate date;
 
     private LocalTime time;
@@ -36,6 +41,14 @@ public class Booking {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getName() {
