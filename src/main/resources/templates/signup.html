@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" class="brand-logo"><img th:src="@{/images/logo.jpg}" src="../static/images/logo.jpg" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/login}" class="nav-link">Login</a></li>
+                    <li><a th:href="@{/signup}" class="nav-link active">Sign Up</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Registration Card-->
+
+    <main class="container" style="max-width: 480px; margin: 40px auto; padding: 0 1rem;">
+        <div class="card" style="text-align: left; padding: 2rem;">
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Create an Account</h2>
+
+            <form th:action="@{/signup}" th:object="${user}" method="post">
+                <!-- Name -->
+                <div class="input-container">
+                    <label for="name" class="input-title">Prefered
+                        Name</label>
+                    <input class="input-box" type="text" id="name" th:field="*{name}" required placeholder="Name on the order">
+                    <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="warning-message"></p>
+                </div>
+
+                <!-- Email -->
+                <div class="input-container">
+                    <label for="email" class="input-title">Email</label>
+                    <input class="input-box" type="email" id="email" th:field="*{email}" required placeholder="you@example.com">
+                    <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="warning-message"></p>
+                </div>
+
+                <!-- Password -->
+                <div class="input-container">
+                    <label for="password" class="input-title">Password</label>
+                    <input class="input-box" type="password" id="password" th:field="*{password}" required placeholder="--------">
+                    <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="warning-message"></p>
+                </div>
+
+                <!-- Phone -->
+                <div class="input-container">
+                    <label for="phone" class="input-title">Phone (Required)</label>
+                    <input class="input-box" type="tel" id="phone" th:field="*{phone}" placeholder="(555) 123-4567" required>
+                    <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="warning-message"></p>
+                </div>
+
+                <!-- Contact Preference -->
+                <div class="input-container">
+                    <label for="contactPreference" class="input-title">Order &amp; Booking Updates</label>
+                    <select class="input-box" id="contactPreference" th:field="*{contactPreference}">
+                        <option value="EMAIL">Email</option>
+                        <option value="SMS">SMS</option>
+                    </select>
+                </div>
+
+                <!-- Button -->
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
+                    Sign Up
+                </button>
+            </form>
+
+            <p class="text-center" style="margin-top: 1.5rem; color: #666; font-size: 0.95rem;">
+                Already have an account? <a th:href="@{/login}" style="font-weight: 600;">Log in here</a>
+            </p>
+        </div>
+    </main>
+</body>
+
+</html>

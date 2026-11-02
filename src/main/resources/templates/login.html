@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In - La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <header class="site-header">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/login}" class="nav-link active">Login</a></li>
+                    <li><a th:href="@{/signup}" class="nav-link">Sign Up</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 480px; margin: 40px auto; padding: 0 1rem;">
+        <div class="card" style="text-align: left; padding: 2rem;">
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Log In</h2>
+            
+            <!-- Error Message for Bad Password / Email -->
+            <div th:if="${errorMessage}" class="warning-message">
+                <p th:text="${errorMessage}" style="margin: 0;"></p>
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="input-container">
+                    <label for="email" class="input-title">Email</label>
+                    <input class="input-box" type="email" id="email" name="email" th:value="${email}" required placeholder="you@example.com">
+                </div>
+
+                <div class="input-container">
+                    <label for="password" class="input-title">Password</label>
+                    <input class="input-box" type="password" id="password" name="password" required placeholder="--------">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
+                    Log In
+                </button>
+            </form>
+
+            <p style="text-align: center; margin-top: 1.5rem; color: rgb(133, 133, 133); font-size: 0.95rem;">
+                Don't have an account? <a th:href="@{/signup}" style="font-weight: 600;">Sign up here</a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>

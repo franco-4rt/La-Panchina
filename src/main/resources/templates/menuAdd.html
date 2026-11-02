@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dish | La Panchina Admin</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <header th:replace="~{index :: navbar}"></header>
+
+    <main>
+        <section class="title-section title-compact">
+            <div class="container text-center">
+                <h1 th:text="${formTitle}">Dish</h1>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container admin-form-wrap">
+                <form th:action="@{${formAction}}" th:object="${item}" method="post" class="admin-form">
+
+                    <label>Menu
+                        <select th:field="*{menuType}">
+                            <option value="">-- choose --</option>
+                            <option th:each="t : ${types}" th:value="${t}" th:text="${t}">BREAKFAST</option>
+                        </select>
+                    </label>
+                    <p class="field-error" th:if="${#fields.hasErrors('menuType')}" th:errors="*{menuType}"></p>
+
+                    <label>Category
+                        <input type="text" th:field="*{category}" placeholder="e.g. Bebidas">
+                    </label>
+                    <p class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
+
+                    <label>Name
+                        <input type="text" th:field="*{name}">
+                    </label>
+                    <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+
+                    <label>Description (optional)
+                        <textarea rows="3" th:field="*{description}"></textarea>
+                    </label>
+
+                    <label>Price
+                        <input type="number" step="0.01" min="0" th:field="*{price}">
+                    </label>
+                    <p class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></p>
+
+                    <div class="admin-form-buttons">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a th:href="@{/admin/menu}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{index :: footer}"></footer>
+
+</body>
+</html>

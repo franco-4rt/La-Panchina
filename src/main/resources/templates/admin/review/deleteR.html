@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deletion Confirmation</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <body>
+    <!-- Navigation Bar -->
+    <header class="site-header">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" alt="La Panchina" class="brand-img">
+                    <span>La Panchina (Admin)</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/admin}" class="nav-link active">Admin Dashboard</a></li>
+                    <li><a th:href="@{/logout}" class="nav-link">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="section">
+        <div class="card">
+            <h1>CONFIRMATION OF DELETION</h1>
+            
+            <p>
+                Are you sure you want to delete review
+                <strong th:text="${review.rid}"></strong>?
+            </p>
+
+            <section> <!--All Important information about the review so the admin makes sure it is the correct one -->
+                <h3>Review Information</h3>
+                <p>
+                    <strong>Rating:</strong>
+                    <span th:text="${review.rating}"></span>/5 <!--All reviews are n/5 stars-->
+                </p>
+                <p>
+                    <strong>Comment:</strong>
+                    <span th:text="${review.comment}"></span> <!--What the review is about-->
+                </p>
+            </section>
+            <form th:action="@{/admin/delete/{rid}(rid=${review.rid})}" method="post">
+                <div> <!--Action area, either return or confirm deletion-->
+                    <button class="btn btn-primary" type="submit">Confirm Deletion</button>
+                    <a class = "btn btn-secondary" th:href="@{/admin/reviews}">Return</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
