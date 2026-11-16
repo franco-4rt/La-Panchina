@@ -1,12 +1,16 @@
 package group3.la_panchina.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import group3.la_panchina.models.Review;
 import group3.la_panchina.models.User;
@@ -22,7 +26,8 @@ public class ReviewController{
     private ReviewRepository reviewRepo;
 
     @GetMapping("/reviews")
-    public String seeReviews(Model model,  HttpSession session, HttpServletResponse response) {
+    public String seeReviews(Model model,  HttpSession session,
+    HttpServletResponse response, @RequestParam(defaultValue = "none") String sort) {
         User user = (User) session.getAttribute("session_user");
         //check whether the user already has a review(if he has only allow him to edit previous review)
         boolean hasReview = false;
@@ -34,9 +39,30 @@ public class ReviewController{
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate" );
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
+        List<Review> reviews;
+        switch(sort){
+            case "none":
+            default:
+                reviews = reviewRepo.findAll();
+                sort = "none";//safety measure in case the sort changes back to none(avoid possible errors)
+                break;
+            case "timeAsc":
+                reviews = reviewRepo.findAll(Sort.by(Sort.Direction.ASC, "updatedAt"));
+                break;
+            case "timeDesc":
+                reviews = reviewRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
+                break;
+            case "ratingAsc":
+                reviews = reviewRepo.findAll(Sort.by(Sort.Direction.ASC, "rating"));
+                break;
+            case "ratingDesc":
+                reviews = reviewRepo.findAll(Sort.by(Sort.Direction.DESC, "rating"));
+                break;
+        }
 
-        model.addAttribute("reviews", reviewRepo.findAll());
+        model.addAttribute("reviews",reviews);
         model.addAttribute("hasReview", hasReview);
+        model.addAttribute("currentSort", sort);
         return "customers/review/reviews";
     }
 

@@ -41,9 +41,11 @@ public class Review {
     private LocalDateTime updatedAt; 
 
     @PrePersist // runs before being first inserted in the database
-    protected void onCreate(){
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+    protected void onCreate(){ // iteration1 used two LocalDateTime.now making it so that the
+        //value of createdAt and updatedAt will never be the same values ever. So it was changed
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
     }
 
     @PreUpdate //runs before updating an entity in the database

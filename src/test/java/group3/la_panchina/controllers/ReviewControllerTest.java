@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -50,11 +51,10 @@ class ReviewControllerTest {
 
         when(reviewRepo.findAll()).thenReturn(reviews);
         mockMvc.perform(get("/reviews"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("customers/review/reviews"))
-            .andExpect(model().attribute("reviews", reviews))
-            .andExpect(model().attribute("hasReview", false));
-
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("reviews", reviews))
+        .andExpect(model().attribute("hasReview", false));
         verify(reviewRepo).findAll();
         verify(reviewRepo, never()).findByAppUser(any());
     }
@@ -69,11 +69,10 @@ class ReviewControllerTest {
         when(reviewRepo.findAll()).thenReturn(List.of(review));
         when(reviewRepo.findByAppUser(customer)).thenReturn(review);
         mockMvc.perform(get("/reviews")
-        .sessionAttr("session_user", customer))
+            .sessionAttr("session_user", customer))
         .andExpect(status().isOk())
         .andExpect(view().name("customers/review/reviews"))
         .andExpect(model().attribute("hasReview", true));
-
         verify(reviewRepo).findByAppUser(customer);
     }
 
@@ -82,8 +81,8 @@ class ReviewControllerTest {
     @Test
     void testCreateReviewFormWithoutLogin() throws Exception {
         mockMvc.perform(get("/reviews/create"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/login"));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/login"));
     }
 
     // Checks that a logged-in customer without a review can open the create form.
@@ -95,10 +94,9 @@ class ReviewControllerTest {
         when(reviewRepo.findByAppUser(customer)).thenReturn(null);
         mockMvc.perform(get("/reviews/create")
             .sessionAttr("session_user", customer))
-            .andExpect(status().isOk())
-            .andExpect(view().name("customers/review/createR"))
-            .andExpect(model().attributeExists("reviewS"));
-
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/createR"))
+        .andExpect(model().attributeExists("reviewS"));
         verify(reviewRepo).findByAppUser(customer);
     }
 
@@ -112,8 +110,8 @@ class ReviewControllerTest {
         when(reviewRepo.findByAppUser(customer)).thenReturn(review);
         mockMvc.perform(get("/reviews/create")
             .sessionAttr("session_user", customer))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/reviews"));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/reviews"));
     }
 
     // Checks that guests cannot submit a review.
@@ -123,9 +121,8 @@ class ReviewControllerTest {
         mockMvc.perform(post("/reviews/create")
             .param("rating", "5")
             .param("comment", "Great food!"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/login"));
-
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/login"));
         verify(reviewRepo, never()).save(any());
     }
 
@@ -141,8 +138,8 @@ class ReviewControllerTest {
             .sessionAttr("session_user", customer)
             .param("rating", "5")
             .param("comment", "Great food!"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/reviews"));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/reviews"));
 
         verify(reviewRepo).save(argThat(review ->
             review.getAppUser() == customer
@@ -162,10 +159,9 @@ class ReviewControllerTest {
             .sessionAttr("session_user", customer)
             .param("rating", "6")
             .param("comment", "Great food!"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("customers/review/createR"))
-            .andExpect(model().attributeHasFieldErrors("reviewS", "rating"));
-
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/createR"))
+        .andExpect(model().attributeHasFieldErrors("reviewS", "rating"));
         verify(reviewRepo, never()).save(any());
     }
 
@@ -174,8 +170,8 @@ class ReviewControllerTest {
     @Test
     void testEditReviewFormWithoutLogin() throws Exception {
         mockMvc.perform(get("/reviews/edit"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/login"));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/login"));
     }
 
     // Checks that customers without an existing review cannot access the edit form.
@@ -187,8 +183,8 @@ class ReviewControllerTest {
         when(reviewRepo.findByAppUser(customer)).thenReturn(null);
         mockMvc.perform(get("/reviews/edit")
             .sessionAttr("session_user", customer))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/reviews"));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/reviews"));
     }
 
     // Checks that a customer with an existing review can access the edit form.
@@ -202,9 +198,9 @@ class ReviewControllerTest {
 
         mockMvc.perform(get("/reviews/edit")
             .sessionAttr("session_user", customer))
-            .andExpect(status().isOk())
-            .andExpect(view().name("customers/review/updateR"))
-            .andExpect(model().attributeExists("reviewS"));
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/updateR"))
+        .andExpect(model().attributeExists("reviewS"));
     }
 
     // Checks that guests cannot submit an edit to a review.
@@ -214,9 +210,8 @@ class ReviewControllerTest {
         mockMvc.perform(post("/reviews/edit")
             .param("rating", "4")
             .param("comment", "Updated comment"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/login"));
-
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/login"));
         verify(reviewRepo, never()).save(any());
     }
 
@@ -231,8 +226,8 @@ class ReviewControllerTest {
             .sessionAttr("session_user", customer)
             .param("rating", "4")
             .param("comment", "Updated comment"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/reviews"));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/reviews"));
         verify(reviewRepo, never()).save(any());
     }
 
@@ -248,8 +243,8 @@ class ReviewControllerTest {
             .sessionAttr("session_user", customer)
             .param("rating", "4")
             .param("comment", "Updated comment"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/reviews"));
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/reviews"));
         verify(reviewRepo).save(argThat(review ->
             review == existingReview
             && Integer.valueOf(4).equals(review.getRating())
@@ -269,9 +264,182 @@ class ReviewControllerTest {
             .sessionAttr("session_user", customer)
             .param("rating", "0")
             .param("comment", "Updated comment"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("customers/review/updateR"))
-            .andExpect(model().attributeHasFieldErrors("reviewS", "rating"));
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/updateR"))
+        .andExpect(model().attributeHasFieldErrors("reviewS", "rating"));
         verify(reviewRepo, never()).save(any());
     }
+
+//iteration 2 test
+
+    //Check that guests(Not logged in user) can use the Sorting option 
+    // for reviews(Ascending by when it was last updated)
+    @Test
+    void testGuestCanSortReviewsByOldestUpdatedFirst() throws Exception {
+        List<Review> reviews = List.of(createReview(createCustomer()));
+
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.ASC, "updatedAt")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/reviews")
+            .param("sort", "timeAsc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("currentSort", "timeAsc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.ASC, "updatedAt")
+        );
+    }
+    //Check that guests(Not logged in user) can use the Sorting option 
+    // for reviews(Descending by when it was last updated)
+    @Test
+    void testGuestCanSortReviewsByNewestUpdatedFirst() throws Exception {
+        List<Review> reviews = List.of(createReview(createCustomer()));
+
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.DESC, "updatedAt")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/reviews")
+            .param("sort", "timeDesc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("currentSort", "timeDesc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.DESC, "updatedAt")
+        );
+    }
+    //Check that guests(Not logged in user) can use the Sorting option 
+    // for reviews(Ascending by rating)
+    @Test
+    void testGuestCanSortReviewsByLowestRatingFirst() throws Exception {
+        List<Review> reviews = List.of(createReview(createCustomer()));
+
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.ASC, "rating")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/reviews")
+            .param("sort", "ratingAsc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("currentSort", "ratingAsc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.ASC, "rating")
+        );
+    }
+
+    //Check that guests(Not logged in user) can use the Sorting option 
+    // for reviews(Descending by rating)
+    @Test
+    void testGuestCanSortReviewsByHighestRatingFirst() throws Exception {
+        List<Review> reviews = List.of(createReview(createCustomer()));
+
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.DESC, "rating")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/reviews")
+            .param("sort", "ratingDesc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("currentSort", "ratingDesc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.DESC, "rating")
+        );
+    }
+
+    //Check that a logged in user can use the Sorting option 
+    // for reviews(Ascending by last updated)
+    @Test
+    void testCustomerCanSortReviewsByOldestUpdatedFirst() throws Exception {
+        User customer = createCustomer();
+        List<Review> reviews = List.of(createReview(customer));
+
+        when(reviewRepo.findByAppUser(customer)).thenReturn(null);
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.ASC, "updatedAt")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/reviews")
+            .sessionAttr("session_user", customer)
+            .param("sort", "timeAsc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("currentSort", "timeAsc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.ASC, "updatedAt")
+        );
+    }
+
+    //Check that a logged in user can use the Sorting option 
+    // for reviews(Descend by last updated)
+    @Test
+    void testCustomerCanSortReviewsByNewestUpdatedFirst() throws Exception {
+        User customer = createCustomer();
+        List<Review> reviews = List.of(createReview(customer));
+
+        when(reviewRepo.findByAppUser(customer)).thenReturn(null);
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.DESC, "updatedAt")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/reviews")
+            .sessionAttr("session_user", customer)
+            .param("sort", "timeDesc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("currentSort", "timeDesc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.DESC, "updatedAt")
+        );
+    }
+
+    //Check that logged in user can use the Sorting option 
+    // for reviews(Ascending by rating)
+    @Test
+    void testCustomerCanSortReviewsByLowestRatingFirst() throws Exception {
+        User customer = createCustomer();
+        List<Review> reviews = List.of(createReview(customer));
+
+        when(reviewRepo.findByAppUser(customer)).thenReturn(null);
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.ASC, "rating")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/reviews")
+            .sessionAttr("session_user", customer)
+            .param("sort", "ratingAsc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("currentSort", "ratingAsc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.ASC, "rating")
+        );
+    }
+
+    //Check that logged-in users can use the Sorting option 
+    // for reviews(Descending by rating)
+    @Test
+    void testCustomerCanSortReviewsByHighestRatingFirst() throws Exception {
+        User customer = createCustomer();
+        List<Review> reviews = List.of(createReview(customer));
+
+        when(reviewRepo.findByAppUser(customer)).thenReturn(null);
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.DESC, "rating")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/reviews")
+            .sessionAttr("session_user", customer)
+            .param("sort", "ratingDesc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("customers/review/reviews"))
+        .andExpect(model().attribute("currentSort", "ratingDesc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.DESC, "rating")
+        );
+    }
+
 }
