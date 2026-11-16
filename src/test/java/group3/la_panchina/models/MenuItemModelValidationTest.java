@@ -5,6 +5,7 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -95,5 +96,33 @@ class MenuItemModelValidationTest {
         MenuItemModel item = valid();
         item.setDescription("");
         assertFalse(violatesField(item, "description"));
+    }
+
+        @Test
+    void iconsAreNullByDefault() {
+        assertNull(valid().getIcons());
+    }
+
+    @Test
+    void setIconsStoresTheValue() {
+        MenuItemModel item = valid();
+        item.setIcons("SPICY,VEGETARIAN");
+        assertEquals("SPICY,VEGETARIAN", item.getIcons());
+    }
+
+    @Test
+    void itemWithIconsHasNoViolations() {
+        MenuItemModel item = valid();
+        item.setIcons("SPICY");
+        assertTrue(validator.validate(item).isEmpty());
+    }
+
+    @Test
+    void nullAndEmptyIconsAreAllowed() {
+        MenuItemModel item = valid();
+        item.setIcons(null);
+        assertFalse(violatesField(item, "icons"));
+        item.setIcons("");
+        assertFalse(violatesField(item, "icons"));
     }
 }
