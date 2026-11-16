@@ -513,3 +513,41 @@ a:hover {
   flex-wrap: wrap; 
   gap: 1rem;
 }
+
+html { scroll-behavior: smooth; }
+
+.menu-index {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 14px;
+    padding: 16px 20px;
+}
+
+.menu-index a {
+    padding: 6px 14px;
+    border: 1px solid currentColor;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.menu-index a:hover { opacity: 0.7; }
+
+[id^="cat-"] { scroll-margin-top: 90px; }
+
+.back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    padding: 10px 16px;
+    border-radius: 24px;
+    background: #38573d;
+    color: #000000;
+    text-decoration: none;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.back-to-top:hover { opacity: 0.85; }
