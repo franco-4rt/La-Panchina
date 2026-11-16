@@ -70,6 +70,12 @@
             </div>
         </section>
 
+        <nav class="menu-index" aria-label="Menu categories">
+            <a th:each="entry, stat : ${grouped}"
+            th:href="'#cat-' + ${stat.index}"
+            th:text="${entry.key}">Category</a>
+        </nav>
+
         <section class="section" th:each="entry,stat : ${grouped}" 
                 th:classappend="${stat.odd} ? 'section-alt'">
             <div class="container menu-container">
@@ -91,6 +97,8 @@
         </section>
     </main>
 
+    <a href="#" class="back-to-top" aria-label="Back to top">↑ Top</a>
+    
     <footer th:replace="~{index :: footer}"></footer>
 
 </body>
