@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us Page</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!--Added the second stylesheet only for the ability to use the symbols in the socials-->
+    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!--Added a style only for the map in this page as it will not affect any other in the website-->
+    <style> 
+        .map-container {
+            width: 100%;
+            margin: 25px auto;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .map-container iframe {
+            display: block;
+            width: 100%;
+            height: 450px;
+            border: 0;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--color-terracotta);
+        }
+
+        .social-links a:hover {
+            color: var(--color-terracotta-hover);
+        }
+
+        .social-links i {
+            font-size: 1.3rem;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Shared Navigation Bar -->
+    <header class="site-header" th:fragment="navbar">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" href="/" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" src="../static/images/logo.jpg" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" href="/" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/menu}" href="/menu" class="nav-link">Menu</a></li>
+                    <li><a th:href="@{/reservations}" href="/reservations" class="nav-link">Book a Table</a></li>
+                    <li><a th:href="@{/reviews}" href="/reviews" class="nav-link active">Reviews &amp; Find Us</a></li>
+
+                    <li th:if="${session.session_user == null}">
+                        <a th:href="@{/login}" href="/login" class="nav-link">Login</a>
+                    </li>
+
+                    <li th:if="${session.session_user == null}">
+                        <a th:href="@{/signup}" href="/signup" class="nav-link">Sign Up</a>
+                    </li>
+                    
+                    <!-- Login as customer -->
+                    <li th:if="${session.session_user != null and session.session_user.role == 'CUSTOMER'}">
+                        <span class="nav-link" th:text="'Welcome, ' + ${session.session_user.name}"></span>
+                    </li>
+
+                    <!-- Login as admin -->
+                    <li th:if="${session.session_user != null and session.session_user.role == 'ADMIN'}">
+                        <a th:href="@{/admin}" href="/admin" class="nav-link">Admin Dashboard</a>
+                    </li>
+
+                    <!-- Logout -->
+                    <li th:if="${session.session_user != null}">
+                        <a th:href="@{/logout}" href="/logout" class="nav-link">Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container text-center">
+            <h1 class="section-title">About La Panchina</h1>
+            <p1>Welcome to la Panchina Cucina!</p1><!--Standard message, may be replaced in 
+            iteration 3 with the one or more of the following: values of the comapny/restaurant, their history-->
+            <br>
+            <h2 class="section-title">Find Us</h2>
+            <div class="map-container">
+
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3977.7554304060313!2d-96.71517419999999!3d17.078625799999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85c723504ad9aca5%3A0xe45b823190bafb87!2sLa%20Panchina%20Cucina!5e1!3m2!1ses-419!2sca!4v1794810583363!5m2!1ses-419!2sca"
+                    width="100%"
+                    height="450"
+                    style="border:0;"
+                    allowfullscreen
+                    loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            </div>
+
+        </div>
+
+    <section class="section">
+        <div class="container text-center">
+            <h2 class="section-title">Contact Us</h2>
+            <p>Follow us in Social Media or get in touch with us </p>
+            <div class="social-links">
+
+                <!--Send an email to:-->
+                <!--Currently the original email from the restaurant is not being implemented-->
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=your-email@gmail.com" 
+                target="_blank"
+                class="social-link">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Email</span>
+                </a>
+
+                <!-- Check the Instagram page: -->
+                <!--The target="_blank" is used so the page is open in a new tab instead of the same-->
+                <a href="https://www.instagram.com/lapanchina_cucina?srtk=MXJzenVua29rMWg1bA%3D%3D" 
+                target="_blank" 
+                class="social-link">
+                    <i class="fa-brands fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+
+                <!-- Check the facebook page: -->
+                <a href="https://www.facebook.com/p/La-Panchina-Cucina-Italiana-61574353144784/" 
+                target="_blank"
+                class="social-link">
+                    <i class="fa-brands fa-facebook"></i>
+                    <span>Facebook</span>
+                </a>
+
+                <!-- Phone -->
+                <a href="tel:+529516353912" class="social-link">
+                    <i class="fa-solid fa-phone"></i>
+                    <span>+52 951-635-3912</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shared Footer -->
+    <footer class="site-footer" th:fragment="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h3>La Panchina</h3>
+                    <p>Pizzas y platillos italianos auténticos</p>
+                </div>
+                <div>
+                    <h4>Links</h4>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/menu}">Menu</a></li>
+                        <li><a th:href="@{/reservations}">Book a Table</a></li>
+                        <li><a th:href="@{/reviews}">Reviews &amp; Find Us</a></li>
+                        <li><a th:href="@{/login}">Login</a></li>
+                        <li><a th:href="@{/signup}">Sign Up</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Hours</h4>
+                    <p>Mon: CLOSED</p>
+                    <p>Tue - Sat: 08:00 AM - 10:00 PM</p>
+                    <p>Sun: 08:00 AM - 08:00 PM</p>
+                </div>
+                <div>
+                    <h4>Location</h4>
+                    <p>Heroica Escuela Naval Militar, Reforma, 68050 Oaxaca de Juárez</p>
+                    <p>+52 951 635 3912</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 La Panchina. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
