@@ -75,7 +75,7 @@ public class Notification {
    public NotificationType getType() {return type;}
    public String getChannel() {return channel;}
    public String getRecipient() {return recipient;}
-   public NotificationStatus geStatus() {return status;}
+   public NotificationStatus getStatus() {return status;}
    public void setStatus(NotificationStatus status) {this.status = status;}
    public int getAttempts() {return attempts;}
    public void setAttempts(int attempts) {this.attempts = attempts;}

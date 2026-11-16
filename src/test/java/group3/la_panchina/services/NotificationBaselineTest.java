@@ -74,7 +74,7 @@ class NotificationBaselineTest {
 
         // 2 rows for the pending booking + 3 for the confirmed + 3 for the cancelled one
         assertEquals(8, notificationRepository.count());
-        notificationRepository.findAll().forEach(n -> assertEquals(NotificationStatus.SKIPPED, n.geStatus()));
+        notificationRepository.findAll().forEach(n -> assertEquals(NotificationStatus.SKIPPED, n.getStatus()));
     }
 
     // SC: Once the baseline is done, running it again does not touch newer bookings

@@ -94,7 +94,7 @@ class NotificationServiceTest {
     // Helper: The status saved for a booking and notification type
     private NotificationStatus statusOf(Booking booking, NotificationType type)
     {
-        return notificationRepository.findByBookingIdAndType(booking.getId(), type).orElseThrow().geStatus();
+        return notificationRepository.findByBookingIdAndType(booking.getId(), type).orElseThrow().getStatus();
     }
 
     // *SC = SUCCESS CASE , FC = FAILURE CASE
