@@ -77,7 +77,7 @@
         </nav>
 
         <section class="section" th:each="entry,stat : ${grouped}" 
-                th:classappend="${stat.odd} ? 'section-alt'">
+                th:classappend="${stat.odd} ? 'section-alt'" th:id="'cat-' + ${stat.index}">
             <div class="container menu-container">
                 <h2 class="text-center section-title" th:text="${entry.key}">Category</h2>
 
