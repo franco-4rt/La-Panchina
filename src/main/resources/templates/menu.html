@@ -85,11 +85,15 @@
                     <li class="menu-row" th:each="item: ${entry.value}">
                         <div class="menu-row-main">
                             <span class="menu-name" th:text="${item.name}">Dish name</span>
+                            <span class="menu-icons" th:if="${item.icons != null}">
+                                <span th:if="${#strings.contains(item.icons, 'SPICY')}" title="Spicy">🌶️</span>
+                                <span th:if="${#strings.contains(item.icons, 'VEGETARIAN')}" title="Vegetarian">🥬</span>
+                            </span>
                             <span class="menu-dots"></span>
                             <span class="menu-price"
                                     th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 0)}">$0</span>
                         </div>
-                        <p class="mnu-desc" th:if="${!#strings.isEmpty(item.description)}"
+                        <p class="menu-desc" th:if="${!#strings.isEmpty(item.description)}"
                             th:text="${item.description}">Description</p>
                     </li>
                 </ul>
