@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -125,11 +126,10 @@ public class AdminReviewControllerTest {
         when(reviewRepo.findById(1L)).thenReturn(Optional.of(review));
 
         mockMvc.perform(get("/admin/delete/1")
-                .sessionAttr("session_user", createAdmin()))
-                .andExpect(status().isOk())
-                .andExpect(view().name("admin/review/deleteR"))
-                .andExpect(model().attribute("review", review));
-
+            .sessionAttr("session_user", createAdmin()))
+            .andExpect(status().isOk())
+            .andExpect(view().name("admin/review/deleteR"))
+            .andExpect(model().attribute("review", review));
         verify(reviewRepo).findById(1L);
     }
 
@@ -140,8 +140,8 @@ public class AdminReviewControllerTest {
         when(reviewRepo.findById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/admin/delete/1")
-                .sessionAttr("session_user", createAdmin()))
-                .andExpect(status().isNotFound());
+            .sessionAttr("session_user", createAdmin()))
+            .andExpect(status().isNotFound());
     }
     
     //Test what happens if you try to use the delete command as a non-admin
@@ -149,10 +149,9 @@ public class AdminReviewControllerTest {
     @Test
     void testDeleteReviewAsNonAdmin() throws Exception {
         mockMvc.perform(post("/admin/delete/1")
-                .sessionAttr("session_user", createCustomer()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"));
-
+            .sessionAttr("session_user", createCustomer()))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/login"));
         verify(reviewRepo, never()).deleteById(anyLong());
     }
 
@@ -161,10 +160,96 @@ public class AdminReviewControllerTest {
     @Test
     void testDeleteReviewAsAdmin() throws Exception {
         mockMvc.perform(post("/admin/delete/1")
-                .sessionAttr("session_user", createAdmin()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/reviews"));
-
+            .sessionAttr("session_user", createAdmin()))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/admin/reviews"));
         verify(reviewRepo).deleteById(1L);
+    }
+
+//Iteration 2 Tests
+    //The following 4 tests are made to check that an admin can sort the table as intended in the user sotries
+    //acceptance criteria.
+    @Test
+    void testAdminCanSortReviewsByRatingAscending() throws Exception {
+        User admin = createAdmin();
+        List<Review> reviews = List.of(createReview());
+
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.ASC, "rating")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/admin/reviews")
+            .sessionAttr("session_user", admin)
+            .param("sort", "ratingAsc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("admin/review/reviews"))
+        .andExpect(model().attribute("reviews", reviews))
+        .andExpect(model().attribute("currentSort", "ratingAsc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.ASC, "rating")
+        );
+    }
+
+    @Test
+    void testAdminCanSortReviewsByRatingDescending() throws Exception {
+        User admin = createAdmin();
+        List<Review> reviews = List.of(createReview());
+
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.DESC, "rating")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/admin/reviews")
+            .sessionAttr("session_user", admin)
+            .param("sort", "ratingDesc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("admin/review/reviews"))
+        .andExpect(model().attribute("reviews", reviews))
+        .andExpect(model().attribute("currentSort", "ratingDesc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.DESC, "rating")
+        );
+    }
+
+    @Test
+    void testAdminCanSortReviewsByOldestUpdatedFirst() throws Exception {
+        User admin = createAdmin();
+        List<Review> reviews = List.of(createReview());
+
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.ASC, "updatedAt")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/admin/reviews")
+            .sessionAttr("session_user", admin)
+            .param("sort", "timeAsc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("admin/review/reviews"))
+        .andExpect(model().attribute("reviews", reviews))
+        .andExpect(model().attribute("currentSort", "timeAsc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.ASC, "updatedAt")
+        );
+    }
+
+    @Test
+    void testAdminCanSortReviewsByNewestUpdatedFirst() throws Exception {
+        User admin = createAdmin();
+        List<Review> reviews = List.of(createReview());
+
+        when(reviewRepo.findAll(
+            Sort.by(Sort.Direction.DESC, "updatedAt")
+        )).thenReturn(reviews);
+
+        mockMvc.perform(get("/admin/reviews")
+            .sessionAttr("session_user", admin)
+            .param("sort", "timeDesc"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("admin/review/reviews"))
+        .andExpect(model().attribute("reviews", reviews))
+        .andExpect(model().attribute("currentSort", "timeDesc"));
+        verify(reviewRepo).findAll(
+            Sort.by(Sort.Direction.DESC, "updatedAt")
+        );
     }
 }
