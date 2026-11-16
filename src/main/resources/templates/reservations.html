@@ -65,8 +65,21 @@
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Reservation</button>
                 </form>
             </div>
+                        <!-- Booking Form Card ends here -->
+            </div>
+
+            <!-- Link to manage existing bookings -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p style="color: #666; font-size: 0.95rem;">
+                    Already have a reservation? 
+                    <a th:href="@{/reservations/my-bookings}" style="color: var(--color-terracotta); font-weight: 600; text-decoration: underline;">
+                        View or manage your bookings
+                    </a>
+                </p>
+            </div>
         </div>
     </main>
+
 
     <!-- Reuse the footer from index.html -->
     <footer class="site-footer" th:replace="~{index :: footer}"></footer>
