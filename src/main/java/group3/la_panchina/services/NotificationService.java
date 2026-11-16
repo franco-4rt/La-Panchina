@@ -86,6 +86,30 @@ public class NotificationService
         process(NotificationType.REMINDER, inWindow, booking -> booking.getUser().getEmail(), messages::bookingReminder, booking -> isCancelled(booking) || wasBookedInsideReminderWindow(booking));
     }
 
+    // US3: Tells the customer when an administrator confirmed or cancelled the booking
+    public void sendStatusNotifications()
+    {
+        sendStatusNotifications(ZonedDateTime.now(zone));
+    }
+
+    // Same as above but with a given "current time"
+    public void sendStatusNotifications(ZonedDateTime now)
+    {
+        LocalDateTime nowLocal = now.toLocalDateTime();
+
+        process(NotificationType.STATUS_CONFIRMED,  bookingRepository.findPendingWithStatus(NotificationType.STATUS_CONFIRMED, NotificationStatus.FAILED, MAX_ATTEMPTS, List.of("confirmed")),
+        booking -> booking.getUser().getEmail(), messages::statusConfirmed, booking -> hasAlreadyStarted(booking, nowLocal));
+
+         process(NotificationType.STATUS_CANCELLED,  bookingRepository.findPendingWithStatus(NotificationType.STATUS_CANCELLED, NotificationStatus.FAILED, MAX_ATTEMPTS, List.of("cancelled", "canceled")),
+        booking -> booking.getUser().getEmail(), messages::statusCancelled, booking -> hasAlreadyStarted(booking, nowLocal));
+    }
+
+    // True if the booking time has already passed (doesn't make sense to tell the customer about it)
+    private boolean hasAlreadyStarted(Booking booking, LocalDateTime nowLocal)
+    {
+        return LocalDateTime.of(booking.getDate(), booking.getTime()).isBefore(nowLocal);
+    }
+
     // Sends one type of notification for each booking in the list
     private void process(NotificationType type, List<Booking> bookings, Function<Booking, String> recipient, BiFunction<String, Booking, EmailMessage> template, Predicate<Booking> shouldSkip)
     {

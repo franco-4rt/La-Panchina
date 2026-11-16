@@ -36,6 +36,7 @@ public class NotificationScheduler {
                 baselineDone = true;
             }
             service.sendNewBookingNotifications();
+            service.sendStatusNotifications();
             service.sendReminders();
         } catch (RuntimeException e) {
             // Never let an error stop the job from running again

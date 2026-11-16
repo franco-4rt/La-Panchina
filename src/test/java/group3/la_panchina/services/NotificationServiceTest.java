@@ -286,4 +286,84 @@ class NotificationServiceTest {
 
         assertEquals(1, sender.sent.size());
     }
+
+    // SC: a confirmed booking sends the "confirmed" email to the customer
+    @Test 
+    void confirmedBookingSendsTheConfirmedEmail()
+    {
+        Booking booking = saveBooking("confirmed");
+
+        service.sendStatusNotifications(NOW);
+
+        assertEquals(1, sender.sent.size());
+        assertEquals("confirmed@example.com", sender.sent.get(0).to());
+        assertTrue(sender.sent.get(0).subject().contains("confirmada")); // Spanish for confirmed
+        assertEquals(NotificationStatus.SENT, statusOf(booking, NotificationType.STATUS_CONFIRMED));
+        assertFalse(notificationRepository.existsByBookingIdAndType(booking.getId(), NotificationType.STATUS_CANCELLED));
+    }
+
+    // SC: a cancelled booking sends the "cancelled" email to the customer
+    @Test
+    void cancelledBookingSendsTheCancelledEmail()
+    {
+        Booking booking = saveBooking("cancelled");
+
+        service.sendStatusNotifications(NOW);
+
+        assertEquals(1, sender.sent.size());
+        assertTrue(sender.sent.get(0).subject().contains("cancelada")); // Spanish for cancelled
+        assertEquals(NotificationStatus.SENT, statusOf(booking, NotificationType.STATUS_CANCELLED));
+    }
+
+    // SC: a booking that is still pending gets no status email
+    @Test 
+    void pendingBookingGetsNoStatusEmail()
+    {
+        saveBooking("pending");
+
+        service.sendStatusNotifications(NOW);
+
+        assertEquals(0, sender.sent.size());
+    }
+
+    // SC: running the job again does not send the status email twice
+    @Test
+    void statusEmailIsNotSentTwice()
+    {
+        saveBooking("confirmed");
+
+        service.sendStatusNotifications(NOW);
+        service.sendStatusNotifications(NOW);
+
+        assertEquals(1, sender.sent.size());
+    }
+
+    // SC: a booking that already started gets no status email (it's just recorded as SKIPPED)
+    @Test 
+    void noStatusEmailForBookingsThatAlreadyStarted()
+    {
+        Booking booking = saveBooking("confirmed", LocalDate.of(2026, 12, 24), LocalTime.of(10, 0));
+
+        service.sendStatusNotifications(NOW);
+
+        assertEquals(0, sender.sent.size());
+        assertEquals(NotificationStatus.SKIPPED, statusOf(booking, NotificationType.STATUS_CONFIRMED));
+    }
+
+    // SC: (Real flow case) A booking is made, then an administrator confirms it later
+    @Test 
+    void changingTheStatusAfterBookingSendsTheConfirmedEmail()
+    {
+        Booking booking = saveBooking("pending");
+        service.sendNewBookingNotifications();
+        service.sendStatusNotifications(NOW);
+        assertEquals(2, sender.sent.size()); // Only the confirmation and the admin alert
+
+        booking.setStatus("Confirmed");
+        bookingRepository.saveAndFlush(booking);
+        service.sendStatusNotifications(NOW);
+
+        assertEquals(3, sender.sent.size());
+        assertTrue(sender.sent.get(2).subject().contains("confirmada"));
+    }
 }

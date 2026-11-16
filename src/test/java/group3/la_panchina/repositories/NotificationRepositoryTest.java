@@ -12,7 +12,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import group3.la_panchina.models.Notification;
 import group3.la_panchina.models.NotificationStatus;
 import group3.la_panchina.models.NotificationType;
-import net.bytebuddy.implementation.bytecode.Remainder;
 
 // Test the notifications table with in-memory H2 database
 @DataJpaTest

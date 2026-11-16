@@ -35,4 +35,15 @@ public interface BookingNotificationRepository extends Repository<Booking, Long>
         order by b.id""")
     List<Booking> findPendingBetweenDates(@Param("type") NotificationType type, @Param("failed") NotificationStatus failed, @Param("maxAttempts") int maxAttempt, @Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
+    // Booking currently in one of the given statuses (compared in lower case) that still need this type
+    // of notification(confirmed/cancelled emails)
+    @Query("""
+        select b from Booking b join fetch b.user
+        where lower(b.status) in (:statuses)
+            and not exists (
+            select 1 from Notification n
+            where n.bookingId = b.id and n.type = :type
+                and (n.status <> :failed or n.attempts >= :maxAttempts))
+        order by b.id""")
+    List<Booking> findPendingWithStatus(@Param("type") NotificationType type, @Param("failed") NotificationStatus failed, @Param("maxAttempts") int maxAttempts, @Param("statuses") List<String> statuses);
 }
