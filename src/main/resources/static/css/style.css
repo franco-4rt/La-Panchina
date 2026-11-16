@@ -543,7 +543,7 @@ html { scroll-behavior: smooth; }
     padding: 10px 16px;
     border-radius: 24px;
     background: #38573d;
-    color: #000000;
+    color: #ffffff;
     text-decoration: none;
     font-size: 0.9rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -570,4 +570,41 @@ html { scroll-behavior: smooth; }
 .admin-form .icon-options input[type="checkbox"] {
     width: auto;
     margin: 0;
+}
+
+.cat-layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 40px;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.cat-layout.img-left { grid-template-columns: 1fr 1.4fr; }
+.cat-layout.img-left .cat-photo { order: -1; }
+
+.cat-photo { margin: 0; }
+
+.cat-photo img {
+    display: block;
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.cat-photo figcaption {
+    margin-top: 10px;
+    font-style: italic;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 800px) {
+    .cat-layout,
+    .cat-layout.img-left { grid-template-columns: 1fr; }
+    .cat-layout.img-left .cat-photo { order: 0; }
+    .cat-photo img { height: 240px; }
 }
