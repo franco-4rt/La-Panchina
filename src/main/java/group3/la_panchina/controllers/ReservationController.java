@@ -8,12 +8,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.servlet.http.HttpSession;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/reservations")
@@ -93,5 +95,58 @@ public class ReservationController {
         bookingRepository.save(booking);
         // Redirect back to the form with a success message in the URL
         return "redirect:/reservations?success=true";
+    }
+
+    // 3. SHOW MY BOOKINGS: When logged-in user visits GET /reservations/my-bookings
+    @GetMapping("/my-bookings")
+    public String showMyBookings(HttpSession session, Model model) {
+        // Check if user is logged in
+        User user = (User) session.getAttribute("session_user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+        
+        // Fetch only this user's bookings, sorted by date
+        List<Booking> myBookings = bookingRepository.findByUserOrderByDateDesc(user);
+        model.addAttribute("bookings", myBookings);
+        
+        return "my-bookings"; // Tells Spring to look for my-bookings.html
+    }
+
+    // 4. CANCEL MY BOOKING: When customer clicks Cancel on their own pending booking
+    @PostMapping("/my-bookings/{id}/cancel")
+    public String cancelMyBooking(@PathVariable Long id, 
+                                  HttpSession session, 
+                                  org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        // 1. Check if user is logged in
+        User user = (User) session.getAttribute("session_user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        // 2. Find the booking
+        Booking booking = bookingRepository.findById(id).orElse(null);
+
+        // 3. Security & Business Logic Checks
+        if (booking != null) {
+            // Check if the booking actually belongs to this logged-in user
+            if (booking.getUser().getId().equals(user.getId())) {
+                // Check if the booking is still pending
+                if ("pending".equalsIgnoreCase(booking.getStatus())) {
+                    booking.setStatus("cancelled");
+                    bookingRepository.save(booking);
+                    redirectAttributes.addFlashAttribute("successMessage", "Your booking has been successfully cancelled.");
+                } else {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Only pending bookings can be cancelled.");
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to cancel this booking.");
+            }
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Booking not found.");
+        }
+
+        // 4. Redirect back to the my-bookings page
+        return "redirect:/reservations/my-bookings";
     }
 }

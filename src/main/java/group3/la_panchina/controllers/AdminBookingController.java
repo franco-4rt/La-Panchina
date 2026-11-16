@@ -7,8 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletResponse;
+
 
 import java.util.List;
 
@@ -42,5 +46,36 @@ public class AdminBookingController {
         model.addAttribute("bookings", bookings);
         
         return "admin-bookings";
+    }
+
+    // UPDATE STATUS: When admin clicks Confirm or Cancel
+    @PostMapping("/bookings/{id}/status")
+    public String updateBookingStatus(@PathVariable Long id, 
+                                      @RequestParam String status, 
+                                      HttpSession session, 
+                                      HttpServletResponse response) {
+        // 1. Ensure only admin can access
+        User user = (User) session.getAttribute("session_user");
+        if (user == null || !"ADMIN".equalsIgnoreCase(user.getRole())) {
+            return "redirect:/login";
+        }
+
+        // 2. Prevent caching
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+
+        // 3. Find the booking and update its status
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking != null) {
+            // Only allow valid status changes
+            if ("confirmed".equalsIgnoreCase(status) || "cancelled".equalsIgnoreCase(status)) {
+                booking.setStatus(status);
+                bookingRepository.save(booking);
+            }
+        }
+
+        // 4. Redirect back to the admin bookings page
+        return "redirect:/admin/bookings";
     }
 }

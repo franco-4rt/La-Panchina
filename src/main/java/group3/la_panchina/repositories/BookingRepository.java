@@ -1,6 +1,7 @@
 package group3.la_panchina.repositories;
 
 import group3.la_panchina.models.Booking;
+import group3.la_panchina.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 // import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     
     // Find all bookings with a specific status
     List<Booking> findByStatus(String status);
+    
+    // Find all bookings for a specific user, ordered by date descending (newest first)
+    List<Booking> findByUserOrderByDateDesc(User user);
 }

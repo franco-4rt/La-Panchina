@@ -7,29 +7,19 @@
     <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        /* Custom styles just for this table to match the theme of the website. Probably temporary just for this first iteration*/
-        .booking-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        .booking-table th, .booking-table td {
-            border: 1px solid var(--color-border);
-            padding: 0.75rem;
-            text-align: left;
-        }
-        .booking-table th {
-            background-color: var(--color-surface-warm);
-            font-family: var(--font-serif);
-        }
+        .booking-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .booking-table th, .booking-table td { border: 1px solid var(--color-border); padding: 0.75rem; text-align: left; }
+        .booking-table th { background-color: var(--color-surface-warm); font-family: var(--font-serif); }
         .status-pending { color: #d97706; font-weight: bold; }
         .status-confirmed { color: var(--color-olive); font-weight: bold; }
         .status-cancelled { color: var(--color-terracotta); font-weight: bold; }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.85rem; border: none; cursor: pointer; border-radius: var(--radius); }
+        .btn-confirm { background-color: var(--color-olive); color: white; }
+        .btn-cancel { background-color: var(--color-terracotta); color: white; }
     </style>
 </head>
 <body>
 
-    <!-- Reuse navbar -->
     <header class="site-header" th:replace="~{index :: navbar}"></header>
 
     <main class="section">
@@ -46,10 +36,10 @@
                             <th>Time</th>
                             <th>Party Size</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- th:each loops through the list of bookings passed from the controller -->
                         <tr th:each="booking : ${bookings}">
                             <td th:text="${booking.id}"></td>
                             <td th:text="${booking.name}"></td>
@@ -57,16 +47,24 @@
                             <td th:text="${booking.time}"></td>
                             <td th:text="${booking.partySize}"></td>
                             <td>
-                                <!-- Dynamically change text color based on status -->
-                                <span th:text="${booking.status}" 
+                                <span th:text="${booking.status}"
                                       th:classappend="${booking.status == 'pending' ? 'status-pending' : (booking.status == 'confirmed' ? 'status-confirmed' : 'status-cancelled')}">
                                 </span>
                             </td>
+                            <td>
+                                <form th:action="@{/admin/bookings/{id}/status(id=${booking.id})}" method="post" style="display:inline;">
+                                    <input type="hidden" name="status" value="confirmed">
+                                    <button type="submit" class="btn-sm btn-confirm">Confirm</button>
+                                </form>
+                                <form th:action="@{/admin/bookings/{id}/status(id=${booking.id})}" method="post" style="display:inline;">
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button type="submit" class="btn-sm btn-cancel">Cancel</button>
+                                </form>
+                            </td>
                         </tr>
-                        
-                        <!-- Show this row if the database is empty -->
+
                         <tr th:if="${#lists.isEmpty(bookings)}">
-                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                            <td colspan="7" style="text-align: center; padding: 2rem;">
                                 No bookings found yet.
                             </td>
                         </tr>
@@ -76,7 +74,6 @@
         </div>
     </main>
 
-    <!-- Reuse footer -->
     <footer class="site-footer" th:replace="~{index :: footer}"></footer>
 
 </body>
