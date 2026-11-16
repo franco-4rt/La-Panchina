@@ -26,6 +26,33 @@
         </div>
     </header>
 
+    <!--form taken from customers review-->
+    <form th:action="@{/admin/reviews}" method="get">
+        <label for="sort">Sort reviews:</label>
+        <select id="sort" name="sort" onchange="this.form.submit()">
+            <option value="none" th:selected="${currentSort == 'none'}">
+                None
+            </option>
+
+            <option value="timeAsc" th:selected="${currentSort == 'timeAsc'}">
+                Time ↑
+            </option>
+
+            <option value="timeDesc" th:selected="${currentSort == 'timeDesc'}">
+                Time ↓
+            </option>
+
+            <option value="ratingAsc" th:selected="${currentSort == 'ratingAsc'}">
+                Rating ↑
+            </option>
+
+            <option value="ratingDesc" th:selected="${currentSort == 'ratingDesc'}">
+                Rating ↓
+            </option>
+
+        </select>
+    </form>
+
     <table class="admin-table">
         <thead>
             <tr>
