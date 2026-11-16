@@ -103,10 +103,12 @@
                         </div>
 
                         <figure class="cat-photo"
-                                th:with="caption=${type.name() == 'BREAKFAST' and stat.index == 4 ? 'Chilaquiles' : entry.value[0].name}">
+                                th:with="caption=${type.name() == 'BREAKFAST' and stat.index == 4 ? 'Chilaquiles' 
+                                : type.name() == 'BREAKFAST' and stat.index == 1 ? 'Bowl de Frutas'
+                                : entry.value[0].name}">
                             <img th:src="@{'/images/menu/' + ${#strings.toLowerCase(type)} + '-' + ${stat.index} + '.jpg'}"
                                 th:alt="${entry.key}"
-                                th:attr="data-placeholder=@{/images/menu/placeholder.svg}"
+                                th:attr="data-placeholder=@{/images/logo.jpg}"
                                 onerror="this.onerror=null; this.src=this.dataset.placeholder; this.nextElementSibling.textContent=this.alt;">
                             <figcaption th:text="${caption}">Dish name</figcaption>
                         </figure>
