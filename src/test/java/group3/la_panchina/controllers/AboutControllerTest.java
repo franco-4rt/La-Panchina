@@ -21,13 +21,13 @@ public class AboutControllerTest {
     private MockMvc mockMvc;
 
 
-    // Test that a guest can indeed see/enter to the about-us page 
+    // Test that a guest can indeed access to the About Us page 
     @Test
     void testAboutPageAccessibleByGuest() throws Exception {
 
         mockMvc.perform(get("/about-us"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("about-us"));
+            .andExpect(status().isOk())
+            .andExpect(view().name("about-us"));
     }
 
 
@@ -38,17 +38,17 @@ public class AboutControllerTest {
         MockHttpSession session = new MockHttpSession();
 
         User customer = new User(
-                "customer",
-                "customer@gmail.com",
-                "password",
-                "CUSTOMER"
+            "customer",
+            "customer@gmail.com",
+            "password",
+            "CUSTOMER"
         );
 
         session.setAttribute("session_user", customer);
 
         mockMvc.perform(get("/about-us").session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("about-us"));
+            .andExpect(status().isOk())
+            .andExpect(view().name("about-us"));
     }
 
 
@@ -59,53 +59,55 @@ public class AboutControllerTest {
         MockHttpSession session = new MockHttpSession();
 
         User admin = new User(
-                "Admin",
-                "admin@lapanchina.com",
-                "password",
-                "ADMIN"
+            "Admin",
+            "admin@lapanchina.com",
+            "password",
+            "ADMIN"
         );
 
         session.setAttribute("session_user", admin);
 
         mockMvc.perform(get("/about-us").session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("about-us"));
+            .andExpect(status().isOk())
+            .andExpect(view().name("about-us"));
     }
 
 
     // Test that the About Us page displays the restaurant's information.
+    //This test may be propense to change depending on what is implemented to iteration 3
     @Test
     void testAboutPageContainsRestaurantInformation() throws Exception {
 
         mockMvc.perform(get("/about-us"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(
-                        containsString("About La Panchina")
-                ))
-                .andExpect(content().string(
-                        containsString("Welcome to la Panchina Cucina!")
-                ));
+            .andExpect(status().isOk())
+            .andExpect(content().string(
+                containsString("About La Panchina")
+            ))
+            .andExpect(content().string(
+                containsString("Welcome to la Panchina Cucina!")
+            ));
     }
 
 
     // Test that the About Us page contains the restaurant's social media links.
+    //A manual test has been done to verify that they do indeed send you to the correct page.
     @Test
     void testAboutPageContainsSocialMediaLinks() throws Exception {
 
         mockMvc.perform(get("/about-us"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(
-                        containsString("instagram.com/lapanchina_cucina")
-                ))
-                .andExpect(content().string(
-                        containsString("facebook.com/p/La-Panchina-Cucina-Italiana")
-                ))
-                .andExpect(content().string(
-                        containsString("mail.google.com")
-                ))
-                .andExpect(content().string(
-                        containsString("tel:+529516353912")
-                ));
+            .andExpect(status().isOk())
+            .andExpect(content().string(
+                    containsString("instagram.com/lapanchina_cucina")
+            ))
+            .andExpect(content().string(
+                containsString("facebook.com/p/La-Panchina-Cucina-Italiana")
+            ))
+            .andExpect(content().string(
+                    containsString("mail.google.com")
+            ))
+            .andExpect(content().string(
+                    containsString("tel:+529516353912")
+            ));
     }
 
 
@@ -114,16 +116,16 @@ public class AboutControllerTest {
     void testAboutPageContainsGoogleMapsIframe() throws Exception {
 
         mockMvc.perform(get("/about-us"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(
-                        containsString("<iframe")
-                ))
-                .andExpect(content().string(
-                        containsString("google.com/maps/embed")
-                ))
-                .andExpect(content().string(
-                        containsString("La%20Panchina%20Cucina")
-                ));
+            .andExpect(status().isOk())
+            .andExpect(content().string(
+                    containsString("<iframe")
+            ))
+            .andExpect(content().string(
+                    containsString("google.com/maps/embed")
+            ))
+            .andExpect(content().string(
+                    containsString("La%20Panchina%20Cucina")
+            ));
     }
 
 }
