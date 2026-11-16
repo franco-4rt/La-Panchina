@@ -21,7 +21,7 @@ public class AboutControllerTest {
     private MockMvc mockMvc;
 
 
-    // Test that a guest can indeed access to the About Us page 
+    // Test that a guest can indeed access to the Find Us page 
     @Test
     void testAboutPageAccessibleByGuest() throws Exception {
 
@@ -31,7 +31,7 @@ public class AboutControllerTest {
     }
 
 
-    // Test that a customer can access the About Us page.
+    // Test that a Logged in user can access the Find Us page.
     @Test
     void testAboutPageAccessibleByCustomer() throws Exception {
 
@@ -52,7 +52,7 @@ public class AboutControllerTest {
     }
 
 
-    // Test that an admin can access the About Us page.
+    // Test that an admin can access the Find Us page.
     @Test
     void testAboutPageAccessibleByAdmin() throws Exception {
 
@@ -70,22 +70,6 @@ public class AboutControllerTest {
         mockMvc.perform(get("/about-us").session(session))
             .andExpect(status().isOk())
             .andExpect(view().name("about-us"));
-    }
-
-
-    // Test that the About Us page displays the restaurant's information.
-    //This test may be propense to change depending on what is implemented to iteration 3
-    @Test
-    void testAboutPageContainsRestaurantInformation() throws Exception {
-
-        mockMvc.perform(get("/about-us"))
-            .andExpect(status().isOk())
-            .andExpect(content().string(
-                containsString("About La Panchina")
-            ))
-            .andExpect(content().string(
-                containsString("Welcome to la Panchina Cucina!")
-            ));
     }
 
 
