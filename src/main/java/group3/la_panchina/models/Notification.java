@@ -84,4 +84,5 @@ public class Notification {
    public void setSentAt(Instant sentAt) { this.sentAt = sentAt;}
    public String getError() {return error;}
    public void setError(String error) {this.error = error;}
+   public void setCreatedAt(Instant createdAt) {this.createdAt = createdAt;} // New setter
 }

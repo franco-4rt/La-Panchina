@@ -36,6 +36,7 @@ public class NotificationScheduler {
                 baselineDone = true;
             }
             service.sendNewBookingNotifications();
+            service.sendReminders();
         } catch (RuntimeException e) {
             // Never let an error stop the job from running again
             log.error("Notification job failed", e);

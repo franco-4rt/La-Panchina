@@ -2,6 +2,9 @@ package group3.la_panchina.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
+import group3.la_panchina.models.Notification;
 import group3.la_panchina.models.Booking;
 import group3.la_panchina.models.NotificationStatus;
 import group3.la_panchina.models.NotificationType;
@@ -74,8 +78,26 @@ class NotificationServiceTest {
         sender.failing = false;
     }
 
-    // Helper: (took from NotificationBaselineTest.java)
+    // Fixed "current time" for the reminder tests: Dec 24, 2026 at 12:00
+    private static final ZonedDateTime NOW = ZonedDateTime.of(2026, 12, 24, 12, 0, 0, 0, ZoneId.of("America/Mexico_City"));
+
+     // Helper: pretends the confirmation of a booking was created at the given time
+    private void setConfirmationCreatedAt(Booking booking, Instant when)
+    {
+        Notification row = notificationRepository
+                .findByBookingIdAndType(booking.getId(), NotificationType.BOOKING_CONFIRMATION).orElseThrow();
+        row.setCreatedAt(when);
+        notificationRepository.saveAndFlush(row);
+    }
+
+    // Helper: saves a customer and a booking for the default date (Dec 24, 2026 at 19:30)
     private Booking saveBooking(String status)
+    {
+        return saveBooking(status, LocalDate.of(2026, 12, 24), LocalTime.of(19, 30));
+    }
+
+    // Helper: (took from NotificationBaselineTest.java) modified so it also saves date and time
+    private Booking saveBooking(String status, LocalDate date, LocalTime time)
     {
         User customer = new User("John Doe", status + "@example.com", "xxxx","CUSTOMER");
         customer.setPhone("123-456-7890");
@@ -84,8 +106,8 @@ class NotificationServiceTest {
         Booking booking = new Booking();
         booking.setUser(customer);
         booking.setName("John Doe");
-        booking.setDate(LocalDate.of(2026, 12, 24));
-        booking.setTime(LocalTime.of(19, 30));
+        booking.setDate(date);
+        booking.setTime(time);
         booking.setPartySize(4);
         booking.setStatus(status);
         return bookingRepository.save(booking);
@@ -172,5 +194,96 @@ class NotificationServiceTest {
         assertEquals(0, sender.sent.size());
         assertEquals(NotificationStatus.SKIPPED, statusOf(booking, NotificationType.BOOKING_CONFIRMATION));
         assertEquals(NotificationStatus.SKIPPED, statusOf(booking, NotificationType.ADMIN_NEW_BOOKING));
+    }
+
+    // SC: a booking starting in 3 hours (booked days ago)
+    @Test 
+    void reminderIsSentWhenTheBookingIsWithinSixHours()
+    {
+        Booking booking = saveBooking("pending", LocalDate.of(2026, 12, 24), LocalTime.of(15, 0));
+        service.sendNewBookingNotifications();
+        setConfirmationCreatedAt(booking, NOW.minusDays(2).toInstant());
+        sender.sent.clear();
+
+        service.sendReminders(NOW);
+
+        assertEquals(1, sender.sent.size());
+        assertEquals("pending@example.com", sender.sent.get(0).to());
+        assertTrue(sender.sent.get(0).subject().startsWith("Recordatorio"));
+        assertEquals(NotificationStatus.SENT, statusOf(booking, NotificationType.REMINDER));
+    }
+
+    // SC: a booking more than 6 hours away gets no reminder yet
+    @Test 
+    void noReminderWhenTheBookingIsMoreThanSixHoursAway()
+    {
+        Booking booking = saveBooking("pending", LocalDate.of(2026, 12, 24), LocalTime.of(19, 30));
+        service.sendNewBookingNotifications();
+        setConfirmationCreatedAt(booking, NOW.minusDays(2).toInstant());
+        sender.sent.clear();
+
+        service.sendReminders(NOW);
+
+        assertEquals(0, sender.sent.size());
+        assertFalse(notificationRepository.existsByBookingIdAndType(booking.getId(), NotificationType.REMINDER));
+    }
+
+    // FC: a booking that already start gets no reminder
+    @Test 
+    void noReminderForBookingsThatAlreadyStarted()
+    {
+        Booking booking = saveBooking("pending", LocalDate.of(2026, 12, 24), LocalTime.of(10, 0));
+        service.sendNewBookingNotifications();
+        setConfirmationCreatedAt(booking, NOW.minusDays(2).toInstant());
+        sender.sent.clear();
+
+        service.sendReminders(NOW);
+
+        assertEquals(0, sender.sent.size());
+    }
+
+    // SC: booking made inside the 6-hour window only gets confirmation email, no reminder
+    @Test 
+    void noReminderWhenTheBookingWasMadeInsideTheWindow()
+    {
+        Booking booking = saveBooking("pending", LocalDate.of(2026, 12, 24), LocalTime.of(15, 0));
+        service.sendNewBookingNotifications();
+        setConfirmationCreatedAt(booking, NOW.minusHours(1).toInstant());
+        sender.sent.clear();
+
+        service.sendReminders(NOW);
+
+        assertEquals(0, sender.sent.size());
+        assertEquals(NotificationStatus.SKIPPED, statusOf(booking, NotificationType.REMINDER));
+    }
+
+    // SC: a booking with status cancelled gets no reminder
+    @Test 
+    void noReminderForCancelledBookings()
+    {
+        Booking booking = saveBooking("cancelled", LocalDate.of(2026, 12, 24), LocalTime.of(15, 0));
+        service.sendNewBookingNotifications();
+        setConfirmationCreatedAt(booking, NOW.minusDays(2).toInstant());
+        sender.sent.clear();
+
+        service.sendReminders(NOW);
+
+        assertEquals(0, sender.sent.size());
+        assertEquals(NotificationStatus.SKIPPED, statusOf(booking, NotificationType.REMINDER));
+    }
+
+    // SC: Running the reminder job again does not send the reminder twice
+    @Test 
+    void reminderIsNotSentTwice()
+    {
+        Booking booking = saveBooking("pending", LocalDate.of(2026, 12, 24), LocalTime.of(15, 0));
+        service.sendNewBookingNotifications();
+        setConfirmationCreatedAt(booking, NOW.minusDays(2).toInstant());
+        sender.sent.clear();
+
+        service.sendReminders(NOW);
+        service.sendReminders(NOW);
+
+        assertEquals(1, sender.sent.size());
     }
 }
