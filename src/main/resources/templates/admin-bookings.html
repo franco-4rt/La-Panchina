@@ -30,6 +30,14 @@
             <div class="text-center" style="margin-bottom:1.5rem;">
                 <a th:href="@{/admin/bookings/settings}" class="btn btn-secondary">Booking Settings</a>
             </div>
+            
+            <!-- Feedback banners after Confirm / Cancel -->
+            <div th:if="${successMessage}" class="card" style="background-color:#d4edda; border-color:#c3e6cb; color:#155724; margin-bottom:1.5rem; text-align:center;">
+                <p style="margin:0;"><strong>Success:</strong> <span th:text="${successMessage}"></span></p>
+            </div>
+            <div th:if="${errorMessage}" class="card" style="background-color:#f8d7da; border-color:#f5c6cb; color:#721c24; margin-bottom:1.5rem; text-align:center;">
+                <p style="margin:0;"><strong>Error:</strong> <span th:text="${errorMessage}"></span></p>
+            </div>
 
             <div class="card" style="padding: 0; overflow: hidden;">
                 <table class="booking-table">
