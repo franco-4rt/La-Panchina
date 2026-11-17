@@ -1,15 +1,18 @@
 package group3.la_panchina.controllers;
 
 import group3.la_panchina.models.Booking;
+import group3.la_panchina.models.BookingSettings;
 import group3.la_panchina.models.User;
 import group3.la_panchina.repositories.BookingRepository;
+import group3.la_panchina.repositories.BookingSettingsRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 
 import java.time.DayOfWeek;
@@ -22,10 +25,19 @@ import java.util.List;
 public class ReservationController {
 
     private final BookingRepository bookingRepository;
+    private final BookingSettingsRepository bookingSettingsRepository;
 
-    // Constructor injection: Spring automatically provides the repository here
-    public ReservationController(BookingRepository bookingRepository) {
+    // Constructor injection: Spring provides both repositories here
+    public ReservationController(BookingRepository bookingRepository,
+                                 BookingSettingsRepository bookingSettingsRepository) {
         this.bookingRepository = bookingRepository;
+        this.bookingSettingsRepository = bookingSettingsRepository;
+    }
+
+    // Helper: read the admin's settings, or fall back to defaults if no row exists yet.
+    // Note: this never writes to the database, so it is safe to call on every request.
+    private BookingSettings currentSettings() {
+        return bookingSettingsRepository.findById(1L).orElse(new BookingSettings());
     }
 
     // 1. SHOW THE FORM: When user visits GET /reservations
@@ -42,43 +54,71 @@ public class ReservationController {
         
         // Create an empty Booking object for the HTML form to bind to
         model.addAttribute("booking", booking);
+
+        // Tell the page what the admin's current booking window is
+        BookingSettings settings = currentSettings();
+        model.addAttribute("maxDaysAhead", settings.getMaxDaysAhead());
+        model.addAttribute("maxDate", LocalDate.now().plusDays(settings.getMaxDaysAhead()).toString());
+
         return "reservations"; // Tells Spring to look for reservations.html
     }
 
     // 2. HANDLE SUBMISSION: When user submits the form (POST /reservations)
     @PostMapping
     public String submitBooking(@ModelAttribute Booking booking, HttpSession session, Model model) {
-        // --- VALIDATION LOGIC ---
         // 0. Double-check session on POST
         User user = (User) session.getAttribute("session_user");
         if (user == null) {
             return "redirect:/login";
         }
 
-        // 1. Check if date is in the past
+        // Make the booking window available to the page on every return path below
+        BookingSettings settings = currentSettings();
+        model.addAttribute("maxDaysAhead", settings.getMaxDaysAhead());
+        model.addAttribute("maxDate", LocalDate.now().plusDays(settings.getMaxDaysAhead()).toString());
+
+        // --- VALIDATION LOGIC ---
+
+        // 1. Check if date is missing or in the past
         if (booking.getDate() == null || booking.getDate().isBefore(LocalDate.now())) {
             model.addAttribute("errorMessage", "Please select a future date.");
-            model.addAttribute("booking", booking); // Keeps the user's typed data
+            model.addAttribute("booking", booking);
             return "reservations";
         }
 
-        // 2. Check if it's a Monday (Closed)
+        // 2. NEW: Check the admin-controlled future booking limit
+        LocalDate latestAllowed = LocalDate.now().plusDays(settings.getMaxDaysAhead());
+        if (booking.getDate().isAfter(latestAllowed)) {
+            model.addAttribute("errorMessage",
+                    "Bookings can only be made up to " + settings.getMaxDaysAhead() + " days in advance.");
+            model.addAttribute("booking", booking);
+            return "reservations";
+        }
+
+        // 3. Check if it's a Monday (Closed)
         if (booking.getDate().getDayOfWeek() == DayOfWeek.MONDAY) {
             model.addAttribute("errorMessage", "Sorry, the restaurant is closed on Mondays.");
             model.addAttribute("booking", booking);
             return "reservations";
         }
 
-        // 3. Check Opening Hours (with 1-hour cutoff before closing)
+        // 4. Check a time was actually provided
+        if (booking.getTime() == null) {
+            model.addAttribute("errorMessage", "Please select a time.");
+            model.addAttribute("booking", booking);
+            return "reservations";
+        }
+
+        // 5. Check Opening Hours (with 1-hour cutoff before closing)
         LocalTime time = booking.getTime();
         DayOfWeek day = booking.getDate().getDayOfWeek();
-        boolean validTime = false;
+        boolean validTime;
 
         if (day == DayOfWeek.SUNDAY) {
-            // Sunday: Closes at 20:00 (8 PM), so last booking is 19:00 (7 PM)
+            // Sunday: closes 20:00, last booking 19:00
             validTime = !time.isBefore(LocalTime.of(8, 0)) && !time.isAfter(LocalTime.of(19, 0));
         } else {
-            // Tue-Sat: Closes at 22:00 (10 PM), so last booking is 21:00 (9 PM)
+            // Tue-Sat: closes 22:00, last booking 21:00
             validTime = !time.isBefore(LocalTime.of(8, 0)) && !time.isAfter(LocalTime.of(21, 0));
         }
 
@@ -88,36 +128,38 @@ public class ReservationController {
             return "reservations";
         }
 
-        // If all good, save
-        // 4. Link the booking to the logged-in user before saving
-        booking.setUser(user);
+        // 6. NEW: Validate party size on the server too (never trust the browser alone)
+        if (booking.getPartySize() < 1 || booking.getPartySize() > 20) {
+            model.addAttribute("errorMessage", "Party size must be between 1 and 20 guests.");
+            model.addAttribute("booking", booking);
+            return "reservations";
+        }
 
+        // --- IF ALL GOOD, SAVE ---
+        booking.setUser(user);
         bookingRepository.save(booking);
-        // Redirect back to the form with a success message in the URL
         return "redirect:/reservations?success=true";
     }
 
     // 3. SHOW MY BOOKINGS: When logged-in user visits GET /reservations/my-bookings
     @GetMapping("/my-bookings")
     public String showMyBookings(HttpSession session, Model model) {
-        // Check if user is logged in
         User user = (User) session.getAttribute("session_user");
         if (user == null) {
             return "redirect:/login";
         }
-        
-        // Fetch only this user's bookings, sorted by date
+
         List<Booking> myBookings = bookingRepository.findByUserOrderByDateDesc(user);
         model.addAttribute("bookings", myBookings);
-        
-        return "my-bookings"; // Tells Spring to look for my-bookings.html
+
+        return "my-bookings";
     }
 
-    // 4. CANCEL MY BOOKING: When customer clicks Cancel on their own pending booking
+    // 4. CANCEL MY BOOKING: Customer cancels their own pending booking
     @PostMapping("/my-bookings/{id}/cancel")
-    public String cancelMyBooking(@PathVariable Long id, 
-                                  HttpSession session, 
-                                  org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+    public String cancelMyBooking(@PathVariable Long id,
+                                  HttpSession session,
+                                  RedirectAttributes redirectAttributes) {
         // 1. Check if user is logged in
         User user = (User) session.getAttribute("session_user");
         if (user == null) {

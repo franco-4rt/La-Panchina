@@ -26,6 +26,11 @@
         <div class="container">
             <h2 class="text-center section-title">Admin Dashboard: All Bookings</h2>
 
+            <!-- link to the admin-controlled booking rules -->
+            <div class="text-center" style="margin-bottom:1.5rem;">
+                <a th:href="@{/admin/bookings/settings}" class="btn btn-secondary">Booking Settings</a>
+            </div>
+
             <div class="card" style="padding: 0; overflow: hidden;">
                 <table class="booking-table">
                     <thead>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Settings - La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <header class="site-header" th:replace="~{index :: navbar}"></header>
+
+    <main class="section">
+        <div class="container" style="max-width: 600px;">
+            <h2 class="text-center section-title">Booking Settings</h2>
+
+            <div th:if="${successMessage}" class="card" style="background-color:#d4edda; border-color:#c3e6cb; color:#155724; margin-bottom:1.5rem; text-align:center;">
+                <p style="margin:0;"><strong>Saved:</strong> <span th:text="${successMessage}"></span></p>
+            </div>
+            <div th:if="${errorMessage}" class="card" style="background-color:#f8d7da; border-color:#f5c6cb; color:#721c24; margin-bottom:1.5rem; text-align:center;">
+                <p style="margin:0;"><strong>Error:</strong> <span th:text="${errorMessage}"></span></p>
+            </div>
+
+            <div class="card">
+                <form th:action="@{/admin/bookings/settings}" method="post">
+                    <div style="margin-bottom:1rem;">
+                        <label for="maxDaysAhead" style="display:block; margin-bottom:0.5rem; font-weight:600;">
+                            How far in advance can customers book? (days)
+                        </label>
+                        <input type="number" id="maxDaysAhead" name="maxDaysAhead"
+                               th:value="${settings.maxDaysAhead}" min="1" max="365" required
+                               style="width:100%; padding:0.7rem; border:1px solid var(--color-border); border-radius:var(--radius);">
+                        <p style="margin-top:0.5rem; font-size:0.9rem; color:#666;">
+                            Allowed range: 1 to 365 days. Currently customers can book up to
+                            <strong th:text="${settings.maxDaysAhead}">60</strong> days ahead.
+                        </p>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%;">Save Settings</button>
+                </form>
+            </div>
+
+            <div class="text-center" style="margin-top:1.5rem;">
+                <a th:href="@{/admin/bookings}" style="color:var(--color-terracotta); font-weight:600;">&larr; Back to all bookings</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer" th:replace="~{index :: footer}"></footer>
+
+</body>
+</html>
