@@ -18,6 +18,7 @@ class BookingStatusesTest {
     }
 
     // SC: both spellings of cancelled are recognized!
+    @Test 
     void cancelledAcceptsBothSpellings()
     {
         assertTrue(BookingStatuses.isCancelled("cancelled"));
@@ -26,6 +27,7 @@ class BookingStatusesTest {
     }
 
     // FC: a missing status is neither confirmed nor cancelled
+    @Test
     void nullStatusIsNeither()
     {
         assertFalse(BookingStatuses.isConfirmed(null));
