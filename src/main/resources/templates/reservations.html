@@ -40,8 +40,10 @@
 
                     <div style="margin-bottom: 1rem;">
                         <label for="date" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date</label>
-                        <input type="date" id="date" th:field="*{date}" required 
+                        <input type="date" id="date" th:field="*{date}" th:attr="max=${maxDate}" required 
                                style="width: 100%; padding: 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius);">
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"
+                           th:text="|You can book up to ${maxDaysAhead} days in advance.|"></p>                               
                     </div>
 
                     <div style="margin-bottom: 1rem;">
@@ -65,8 +67,21 @@
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Reservation</button>
                 </form>
             </div>
+                        <!-- Booking Form Card ends here -->
+            </div>
+
+            <!-- Link to manage existing bookings -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p style="color: #666; font-size: 0.95rem;">
+                    Already have a reservation? 
+                    <a th:href="@{/reservations/my-bookings}" style="color: var(--color-terracotta); font-weight: 600; text-decoration: underline;">
+                        View or manage your bookings
+                    </a>
+                </p>
+            </div>
         </div>
     </main>
+
 
     <!-- Reuse the footer from index.html -->
     <footer class="site-footer" th:replace="~{index :: footer}"></footer>

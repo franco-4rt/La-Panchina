@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .booking-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .booking-table th, .booking-table td { border: 1px solid var(--color-border); padding: 0.75rem; text-align: left; }
+        .booking-table th { background-color: var(--color-surface-warm); font-family: var(--font-serif); }
+        .status-pending { color: #d97706; font-weight: bold; }
+        .status-confirmed { color: var(--color-olive); font-weight: bold; }
+        .status-cancelled { color: var(--color-terracotta); font-weight: bold; }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.85rem; border: none; cursor: pointer; border-radius: var(--radius); }
+        .btn-cancel { background-color: var(--color-terracotta); color: white; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header" th:replace="~{index :: navbar}"></header>
+
+    <main class="section">
+        <div class="container">
+            <h2 class="text-center section-title">My Reservations</h2>
+
+            <!-- Success/Error Messages -->
+            <div th:if="${successMessage}" class="card" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; margin-bottom: 1.5rem; text-align: center;">
+                <p style="margin: 0;"><strong>Success:</strong> <span th:text="${successMessage}"></span></p>
+            </div>
+            <div th:if="${errorMessage}" class="card" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; margin-bottom: 1.5rem; text-align: center;">
+                <p style="margin: 0;"><strong>Error:</strong> <span th:text="${errorMessage}"></span></p>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Party Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="booking : ${bookings}">
+                            <td th:text="${booking.date}"></td>
+                            <td th:text="${booking.time}"></td>
+                            <td th:text="${booking.partySize}"></td>
+                            <td>
+                                <span th:text="${booking.status}"
+                                      th:classappend="${booking.status == 'pending' ? 'status-pending' : (booking.status == 'confirmed' ? 'status-confirmed' : 'status-cancelled')}">
+                                </span>
+                            </td>
+                            <td>
+                                <!-- Active Cancel Button (only for pending bookings) -->
+                                <form th:action="@{/reservations/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+                                    <button type="submit" class="btn-sm btn-cancel">Cancel</button>
+                                </form>
+                                <span th:if="${booking.status != 'pending'}" style="color: #666; font-size: 0.85rem;">No actions available</span>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(bookings)}">
+                            <td colspan="5" style="text-align: center; padding: 2rem;">
+                                You have no reservations.
+                                <a th:href="@{/reservations}" style="color: var(--color-terracotta);">Book a table now!</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer" th:replace="~{index :: footer}"></footer>
+
+</body>
+</html>
