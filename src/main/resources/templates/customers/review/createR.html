@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create new Review</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}" href="../static/images/logo.jpg">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -21,7 +22,8 @@
                     <li><a th:href="@{/}" href="/" class="nav-link">Home</a></li>
                     <li><a th:href="@{/menu}" href="/menu" class="nav-link">Menu</a></li>
                     <li><a th:href="@{/reservations}" href="/reservations" class="nav-link">Book a Table</a></li>
-                    <li><a th:href="@{/reviews}" href="/reviews" class="nav-link active">Reviews &amp; Find Us</a></li>
+                    <li><a th:href="@{/reviews}" href="/reviews" class="nav-link active">Reviews</a></li>
+                    <li><a th:href="@{/about-us}" href="/about-us" class="nav-link">Find Us</a></li>
 
                     <li th:if="${session.session_user == null}">
                         <a th:href="@{/login}" href="/login" class="nav-link">Login</a>
@@ -85,5 +87,43 @@
                 <a th:href="@{/reviews}">Return</a>
             </div>
         </div>
+
+        <!-- Shared Footer -->
+    <footer class="site-footer" th:fragment="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h3>La Panchina</h3>
+                    <p>Pizzas y platillos italianos auténticos</p>
+                </div>
+                <div>
+                    <h4>Links</h4>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/menu}">Menu</a></li>
+                        <li><a th:href="@{/reservations}">Book a Table</a></li>
+                        <li><a th:href="@{/reviews}">Reviews &amp; Find Us</a></li>
+                        <li><a th:href="@{/login}">Login</a></li>
+                        <li><a th:href="@{/signup}">Sign Up</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Hours</h4>
+                    <p>Mon: CLOSED</p>
+                    <p>Tue - Sat: 08:00 AM - 10:00 PM</p>
+                    <p>Sun: 08:00 AM - 08:00 PM</p>
+                </div>
+                <div>
+                    <h4>Location</h4>
+                    <p>Heroica Escuela Naval Militar, Reforma, 68050 Oaxaca de Juárez</p>
+                    <p>+52 951 635 3912</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 La Panchina. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
 </body>
 </html>

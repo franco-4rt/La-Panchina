@@ -1,12 +1,16 @@
 package group3.la_panchina.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import group3.la_panchina.models.Review;
@@ -24,7 +28,7 @@ public class AdminReviewController {
 
     @GetMapping("/admin/reviews")
     public String showReviewsAdmin(HttpSession session, HttpServletResponse response,
-    Model model) {
+    Model model, @RequestParam(defaultValue = "none") String sort) {
 
         User user = (User) session.getAttribute("session_user");
 
@@ -38,8 +42,29 @@ public class AdminReviewController {
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
 
-        model.addAttribute("reviews", reviewRepo.findAll());
+        List<Review> reviews;
+        switch(sort){
+            case "none":
+            default:
+                reviews = reviewRepo.findAll();
+                sort = "none";//safety measure in case the sort changes back to none(avoid possible errors)
+                break;
+            case "timeAsc":
+                reviews = reviewRepo.findAll(Sort.by(Sort.Direction.ASC, "updatedAt"));
+                break;
+            case "timeDesc":
+                reviews = reviewRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"));
+                break;
+            case "ratingAsc":
+                reviews = reviewRepo.findAll(Sort.by(Sort.Direction.ASC, "rating"));
+                break;
+            case "ratingDesc":
+                reviews = reviewRepo.findAll(Sort.by(Sort.Direction.DESC, "rating"));
+                break;
+        }
 
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("currentSort",sort);
         return "admin/review/reviews";
     }
     

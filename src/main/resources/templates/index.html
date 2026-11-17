@@ -22,7 +22,8 @@
                     <li><a th:href="@{/}" href="/" class="nav-link active">Home</a></li>
                     <li><a th:href="@{/menu}" href="/menu" class="nav-link">Menu</a></li>
                     <li><a th:href="@{/reservations}" href="/reservations" class="nav-link">Book a Table</a></li>
-                    <li><a th:href="@{/reviews}" href="/reviews" class="nav-link">Reviews &amp; Find Us</a></li>
+                    <li><a th:href="@{/reviews}" href="/reviews" class="nav-link">Reviews</a></li>
+                    <li><a th:href="@{/about-us}" href="/about-us" class="nav-link">Find Us</a></li>
 
                     <li th:if="${session.session_user == null}">
                         <a th:href="@{/login}" href="/login" class="nav-link">Login</a>
