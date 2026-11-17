@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <header class="site-header">
@@ -28,7 +30,12 @@
     <main class="container" style="max-width: 480px; margin: 40px auto; padding: 0 1rem;">
         <div class="card" style="text-align: left; padding: 2rem;">
             <h2 style="text-align: center; margin-bottom: 1.5rem;">Log In</h2>
-            
+
+            <!-- Success Message after Password Reset / Logout -->
+            <div th:if="${successMessage}" class="success-message" style="margin-bottom: 1rem;">
+                <p th:text="${successMessage}" style="margin: 0;"></p>
+            </div>
+
             <!-- Error Message for Bad Password / Email -->
             <div th:if="${errorMessage}" class="warning-message">
                 <p th:text="${errorMessage}" style="margin: 0;"></p>
@@ -37,17 +44,29 @@
             <form th:action="@{/login}" method="post">
                 <div class="input-container">
                     <label for="email" class="input-title">Email</label>
-                    <input class="input-box" type="email" id="email" name="email" th:value="${email}" required placeholder="you@example.com">
+                    <input class="input-box" type="email" id="email" name="email" th:value="${email}" required
+                        placeholder="you@example.com">
                 </div>
 
                 <div class="input-container">
-                    <label for="password" class="input-title">Password</label>
-                    <input class="input-box" type="password" id="password" name="password" required placeholder="--------">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                        <label for="password" class="input-title">Password</label>
+                        <a th:href="@{/forgot-password}"
+                            style="font-size: 0.85rem; color: var(--color-terracotta);">Forgot Password?</a>
+                    </div>
+                    <input class="input-box" type="password" id="password" name="password" required
+                        placeholder="--------">
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
                     Log In
                 </button>
+
+                <div class="divider-or"><span>or</span></div>
+                <!-- Google Sign-In Button -->
+                <a th:href="@{/oauth2/authorization/google}" class="btn-google">
+                    Sign in with Google
+                </a>
             </form>
 
             <p style="text-align: center; margin-top: 1.5rem; color: rgb(133, 133, 133); font-size: 0.95rem;">
@@ -56,4 +75,5 @@
         </div>
     </main>
 </body>
+
 </html>

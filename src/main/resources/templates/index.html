@@ -34,7 +34,7 @@
                     
                     <!-- Login as customer -->
                     <li th:if="${session.session_user != null and session.session_user.role == 'CUSTOMER'}">
-                        <span class="nav-link" th:text="'Welcome, ' + ${session.session_user.name}"></span>
+                        <a th:href="@{/profile}" href="/profile" class="nav-link" th:text="'My Profile'"></a>
                     </li>
 
                     <!-- Login as admin -->

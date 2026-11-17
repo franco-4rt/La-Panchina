@@ -13,7 +13,8 @@
     <header class="site-header">
         <div class="container">
             <nav class="nav-wrapper">
-                <a th:href="@{/}" class="brand-logo"><img th:src="@{/images/logo.jpg}" src="../static/images/logo.jpg" alt="La Panchina" class="brand-img">
+                <a th:href="@{/}" class="brand-logo"><img th:src="@{/images/logo.jpg}" src="../static/images/logo.jpg"
+                        alt="La Panchina" class="brand-img">
                     <span>La Panchina</span>
                 </a>
                 <ul class="nav-links">
@@ -36,28 +37,32 @@
                 <div class="input-container">
                     <label for="name" class="input-title">Prefered
                         Name</label>
-                    <input class="input-box" type="text" id="name" th:field="*{name}" required placeholder="Name on the order">
+                    <input class="input-box" type="text" id="name" th:field="*{name}" required
+                        placeholder="Name on the order">
                     <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="warning-message"></p>
                 </div>
 
                 <!-- Email -->
                 <div class="input-container">
                     <label for="email" class="input-title">Email</label>
-                    <input class="input-box" type="email" id="email" th:field="*{email}" required placeholder="you@example.com">
+                    <input class="input-box" type="email" id="email" th:field="*{email}" required
+                        placeholder="you@example.com">
                     <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="warning-message"></p>
                 </div>
 
                 <!-- Password -->
                 <div class="input-container">
                     <label for="password" class="input-title">Password</label>
-                    <input class="input-box" type="password" id="password" th:field="*{password}" required placeholder="--------">
+                    <input class="input-box" type="password" id="password" th:field="*{password}" required
+                        placeholder="--------">
                     <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="warning-message"></p>
                 </div>
 
                 <!-- Phone -->
                 <div class="input-container">
                     <label for="phone" class="input-title">Phone (Required)</label>
-                    <input class="input-box" type="tel" id="phone" th:field="*{phone}" placeholder="(555) 123-4567" required>
+                    <input class="input-box" type="tel" id="phone" th:field="*{phone}" placeholder="(555) 123-4567"
+                        required>
                     <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="warning-message"></p>
                 </div>
 
@@ -74,6 +79,12 @@
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
                     Sign Up
                 </button>
+
+                <div class="divider-or"><span>or</span></div>
+                <!-- Google Sign-In Button -->
+                <a th:href="@{/oauth2/authorization/google}" class="btn-google">
+                    Sign in with Google
+                </a>
             </form>
 
             <p class="text-center" style="margin-top: 1.5rem; color: #666; font-size: 0.95rem;">

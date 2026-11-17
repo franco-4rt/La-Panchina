@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile — La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Site Navigation -->
+    <header class="site-header">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/menu}" class="nav-link">Menu</a></li>
+                    <li><a th:href="@{/reservations}" class="nav-link">Book a Table</a></li>
+                    <li><a th:href="@{/reviews}" class="nav-link">Reviews</a></li>
+                    <li><a th:href="@{/profile}" class="nav-link active">My Account</a></li>
+                    <li><a th:href="@{/logout}" class="nav-link">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 30px; margin-bottom: 50px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <h2>Customer Account Management</h2>
+                <p style="color: #666; margin: 0;">Logged in as: <strong th:text="${user.name}">Customer</strong> (<span th:text="${user.email}">user@test.com</span>)</p>
+            </div>
+            <a th:href="@{/}" class="btn btn-secondary">Back to Home &rarr;</a>
+        </div>
+
+        <!-- Jamo's Table Reservations Shortcut -->
+        <div class="management-card">
+            <div>
+                <h3>My Table Reservations</h3>
+                <p style="color: #666; margin: 0;">Check the status of your upcoming table bookings, reserved dates, and party sizes.</p>
+            </div>
+            <a th:href="@{/reservations/my-bookings}" class="btn btn-primary">View My Bookings &rarr;</a>
+        </div>
+
+        <!-- Div for Personal Info & Password) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+            
+            <!-- Personal Details -->
+            <div class="card" style="text-align: left; padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;">Personal Details</h3>
+                    <span class="role-badge role-customer" th:text="${user.role}">CUSTOMER</span>
+                </div>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Update your name, contact phone, and dining notification preferences.</p>
+
+                <!-- Feedback alerts -->
+                <p th:if="${successMessage}" th:text="${successMessage}" class="success-message" style="margin-bottom: 1rem;"></p>
+                <p th:if="${errorMessage}" th:text="${errorMessage}" class="warning-message"></p>
+
+                <form th:action="@{/profile}" method="post">
+                    <!-- Email -->
+                    <div class="input-container">
+                        <label for="email" class="input-title">Account Email</label>
+                        <input type="email" id="email" class="input-box" th:value="${user.email}" readonly 
+                               style="background-color: var(--color-surface-warm); cursor: not-allowed; color: #777;">
+                    </div>
+
+                    <!-- Name -->
+                    <div class="input-container">
+                        <label for="name" class="input-title">Full Name</label>
+                        <input type="text" id="name" name="name" class="input-box" th:value="${user.name}" required>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="input-container">
+                        <label for="phone" class="input-title">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="input-box" th:value="${user.phone}" placeholder="555-123-4567" required>
+                    </div>
+
+                    <!-- Contact Preference -->
+                    <div class="input-container">
+                        <label for="contactPreference" class="input-title">Booking Notification Preference</label>
+                        <select id="contactPreference" name="contactPreference" class="input-box" style="height: auto; padding: 0.6rem;">
+                            <option value="Email" th:selected="${user.contactPreference == 'Email'}">Email Notifications</option>
+                            <option value="SMS" th:selected="${user.contactPreference == 'SMS'}">SMS (Text Message)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Security & Password -->
+            <div class="card" style="text-align: left; padding: 2rem;">
+                <h3 style="margin-bottom: 0.5rem;">Security &amp; Password</h3>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Change your login password (minimum 6 characters).</p>
+
+                <!-- Feedback alerts -->
+                <p th:if="${passwordSuccess}" th:text="${passwordSuccess}" class="success-message" style="margin-bottom: 1rem;"></p>
+                <p th:if="${passwordError}" th:text="${passwordError}" class="warning-message"></p>
+
+                <form th:action="@{/profile/password}" method="post">
+                    <!-- Current Password -->
+                    <div class="input-container">
+                        <label for="currentPassword" class="input-title">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" class="input-box">
+                    </div>
+
+                    <!-- New Password -->
+                    <div class="input-container">
+                        <label for="newPassword" class="input-title">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" class="input-box" minlength="6">
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div class="input-container">
+                        <label for="confirmPassword" class="input-title">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="input-box" minlength="6">
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary" style="margin-top: 0.5rem;">Update Password</button>
+                </form>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>
