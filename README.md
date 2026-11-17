@@ -26,3 +26,8 @@ For Iteration 1, we successfully developed and deployed the Minimum Viable Produ
   - Verified customer review submission restricted to authenticated diners.
   - Each customer can submit exactly one review, with full editing capabilities for updates.
   - Administrator review moderation portal (/admin/reviews) with confirmation for deleting inappropriate reviews.
+
+# Iteration 2 Summary & Overview
+For Iteration 2, we transitioned the La Panchina trattoria platform from an initial MVP into an integrated dining management system. Building upon our established stack—Java 21, Spring Boot 4, Thymeleaf, Spring Data JPA, Bean Validation, and PostgreSQL on Render—Iteration 2 focused on external API integrations, self-service customer operations, and automated notification workflows.
+
+All features developed in this iteration were integrated onto dedicated feature branches, verified with automated unit and integration tests, and deployed to our live cloud environment on Render. Our automated test suite expanded from 97 tests in Iteration 1 to 224 passing automated tests in Iteration 2, maintaining 100% build with zero test failures.
