@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty (name = "notification.provider", havingValue = "log", matchIfMissing = true)
+@ConditionalOnProperty (name = "notifications.provider", havingValue = "log", matchIfMissing = true)
 public class LogEmailSender implements EmailSender 
 {
     
