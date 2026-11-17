@@ -17,7 +17,7 @@ import org.springframework.web.client.RestClientException;
 // REAL SENDER: sends emails using SendGrid's API (SMTP blocked on Render). 
 // This is the implementation that will be used in production if the notification.provider property is set to "sendgrid".
 @Component 
-@ConditionalOnProperty (name = "notification.provider", havingValue = "sendgrid")
+@ConditionalOnProperty (name = "notifications.provider", havingValue = "sendgrid")
 public class SendGridEmailSender implements EmailSender 
 {
     private final RestClient client;
@@ -26,9 +26,9 @@ public class SendGridEmailSender implements EmailSender
 
     // Values come from .env locally or from Render's environment variables in production
     public SendGridEmailSender(
-        @Value("${notifications.sendgrid.api.key}") String apiKey,
+        @Value("${notifications.sendgrid.api-key}") String apiKey,
         @Value("${notifications.from-email}") String fromEmail,
-        @Value("${notifications.from-name: La Panchina}") String fromName,
+        @Value("${notifications.from-name:La Panchina}") String fromName,
         @Value("${notifications.sendgrid.endpoint:https://api.sendgrid.com/v3/mail/send}") String endpoint) 
     {
         // Fail at startup if the API key is missing or blank
