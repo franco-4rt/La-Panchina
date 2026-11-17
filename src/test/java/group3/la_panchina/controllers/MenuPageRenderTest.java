@@ -244,7 +244,7 @@ class MenuPageRenderTest {
 
         String html = page("/menu");
 
-        assertTrue(html.contains("data-placeholder=\"/images/logo.png\""));
+        assertTrue(html.contains("data-placeholder=\"/images/logo.jpg\""));
     }
 
     @Test
@@ -290,7 +290,7 @@ class MenuPageRenderTest {
 
         String html = page("/menu");
 
-        assertTrue(html.contains(">Bowl de fruta</figcaption>"));
+        assertTrue(html.contains(">Bowl de Frutas</figcaption>"));
         assertFalse(html.contains(">Bowl energetico</figcaption>"));
     }
 

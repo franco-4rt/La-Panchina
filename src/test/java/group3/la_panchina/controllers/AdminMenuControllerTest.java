@@ -3,6 +3,8 @@ package group3.la_panchina.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -234,5 +237,65 @@ class AdminMenuControllerTest {
         mockMvc.perform(post("/admin/menu/delete/5").session(sessionFor("ADMIN")))
             .andExpect(redirectedUrl("/admin/menu"));
         verify(repo).deleteById(5L);
+    }
+
+        @Test
+    void addSavesBothSelectedIcons() throws Exception {
+        mockMvc.perform(validAdd("/admin/menu/add").param("icons", "SPICY", "VEGETARIAN"))
+            .andExpect(redirectedUrl("/admin/menu"));
+
+        ArgumentCaptor<MenuItemModel> captor = ArgumentCaptor.forClass(MenuItemModel.class);
+        verify(repo).save(captor.capture());
+        assertEquals("SPICY,VEGETARIAN", captor.getValue().getIcons());
+    }
+
+    @Test
+    void addSavesASingleSelectedIcon() throws Exception {
+        mockMvc.perform(validAdd("/admin/menu/add").param("icons", "SPICY"))
+            .andExpect(redirectedUrl("/admin/menu"));
+
+        ArgumentCaptor<MenuItemModel> captor = ArgumentCaptor.forClass(MenuItemModel.class);
+        verify(repo).save(captor.capture());
+        assertEquals("SPICY", captor.getValue().getIcons());
+    }
+
+    @Test
+    void addWithNoIconsSavesNull() throws Exception {
+        mockMvc.perform(validAdd("/admin/menu/add"))
+            .andExpect(redirectedUrl("/admin/menu"));
+
+        ArgumentCaptor<MenuItemModel> captor = ArgumentCaptor.forClass(MenuItemModel.class);
+        verify(repo).save(captor.capture());
+        assertNull(captor.getValue().getIcons());
+    }
+
+    @Test
+    void editSavesTheSelectedIcons() throws Exception {
+        mockMvc.perform(validAdd("/admin/menu/edit/5").param("icons", "VEGETARIAN"))
+            .andExpect(redirectedUrl("/admin/menu"));
+
+        ArgumentCaptor<MenuItemModel> captor = ArgumentCaptor.forClass(MenuItemModel.class);
+        verify(repo).save(captor.capture());
+        assertEquals("VEGETARIAN", captor.getValue().getIcons());
+    }
+
+    @Test
+    void editFormChecksOnlyTheBoxesOfTheDishIcons() throws Exception {
+        MenuItemModel existing = new MenuItemModel("Pastas", "", "Calabrese", 200, MenuType.DINNER);
+        existing.setIcons("SPICY");
+        when(repo.findById(5L)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(get("/admin/menu/edit/5").session(sessionFor("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().string(matchesPattern("(?s).*value=\"SPICY\"\\s+checked=\"checked\".*")))
+            .andExpect(content().string(not(matchesPattern("(?s).*value=\"VEGETARIAN\"\\s+checked=\"checked\".*"))));
+    }
+
+    @Test
+    void addFormOffersBothIconCheckboxes() throws Exception {
+        mockMvc.perform(get("/admin/menu/add").session(sessionFor("ADMIN")))
+            .andExpect(status().isOk())
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("value=\"SPICY\"")))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("value=\"VEGETARIAN\"")));
     }
 }
