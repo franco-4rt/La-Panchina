@@ -49,6 +49,13 @@
                     </label>
                     <p class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></p>
 
+                    <div class="icon-options">
+                        <label><input type="checkbox" name="icons" value="SPICY"
+                            th:checked="${item.icons != null and #strings.contains(item.icons, 'SPICY')}"> 🌶️ Spicy</label>
+                        <label><input type="checkbox" name="icons" value="VEGETARIAN"
+                            th:checked="${item.icons != null and #strings.contains(item.icons, 'VEGETARIAN')}"> 🥬 Vegetarian</label>
+                    </div>
+
                     <div class="admin-form-buttons">
                         <button type="submit" class="btn btn-primary">Save</button>
                         <a th:href="@{/admin/menu}" class="btn btn-secondary">Cancel</a>

@@ -70,25 +70,54 @@
             </div>
         </section>
 
+        <nav class="menu-index" aria-label="Menu categories">
+            <a th:each="entry, stat : ${grouped}"
+            th:href="'#cat-' + ${stat.index}"
+            th:text="${entry.key}">Category</a>
+        </nav>
+
         <section class="section" th:each="entry,stat : ${grouped}" 
-                th:classappend="${stat.odd} ? 'section-alt'">
+                th:classappend="${stat.odd} ? 'section-alt'" th:id="'cat-' + ${stat.index}">
             <div class="container menu-container">
                 <h2 class="text-center section-title" th:text="${entry.key}">Category</h2>
 
-                <ul class="menu-list">
-                    <li class="menu-row" th:each="item: ${entry.value}">
-                        <div class="menu-row-main">
-                            <span class="menu-name" th:text="${item.name}">Dish name</span>
-                            <span class="menu-dots"></span>
-                            <span class="menu-price"
-                                    th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 0)}">$0</span>
+                    <div class="cat-layout" th:classappend="${stat.index % 2 == 0} ? 'img-right' : 'img-left'">
+
+                        <div class="cat-menu">
+                            <ul class="menu-list">
+                                <li class="menu-row" th:each="item: ${entry.value}">
+                                    <div class="menu-row-main">
+                                        <span class="menu-name" th:text="${item.name}">Dish name</span>
+                                        <span class="menu-icons" th:if="${item.icons != null}">
+                                            <span th:if="${#strings.contains(item.icons, 'SPICY')}" title="Spicy">🌶️</span>
+                                            <span th:if="${#strings.contains(item.icons, 'VEGETARIAN')}" title="Vegetarian">🥬</span>
+                                        </span>
+                                        <span class="menu-dots"></span>
+                                        <span class="menu-price"
+                                                th:text="'$' + ${#numbers.formatDecimal(item.price, 1, 0)}">$0</span>
+                                    </div>
+                                    <p class="menu-desc" th:if="${!#strings.isEmpty(item.description)}"
+                                        th:text="${item.description}">Description</p>
+                                </li>
+                            </ul>
                         </div>
-                        <p class="mnu-desc" th:if="${!#strings.isEmpty(item.description)}"
-                            th:text="${item.description}">Description</p>
-                    </li>
-                </ul>
+
+                        <figure class="cat-photo"
+                                th:with="caption=${type.name() == 'BREAKFAST' and stat.index == 4 ? 'Chilaquiles' 
+                                : type.name() == 'BREAKFAST' and stat.index == 1 ? 'Bowl de Frutas'
+                                : entry.value[0].name}">
+                            <img th:src="@{'/images/menu/' + ${#strings.toLowerCase(type)} + '-' + ${stat.index} + '.jpg'}"
+                                th:alt="${entry.key}"
+                                th:attr="data-placeholder=@{/images/logo.jpg}"
+                                onerror="this.onerror=null; this.src=this.dataset.placeholder; this.nextElementSibling.textContent=this.alt;">
+                            <figcaption th:text="${caption}">Dish name</figcaption>
+                        </figure>
+
+                    </div>
             </div>
         </section>
+
+        <a href="#" class="back-to-top" aria-label="Back to top">↑ Top</a>
     </main>
 
     <footer th:replace="~{index :: footer}"></footer>

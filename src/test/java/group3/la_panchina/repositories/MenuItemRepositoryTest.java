@@ -4,6 +4,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +13,16 @@ import org.springframework.data.domain.Sort;
 
 import group3.la_panchina.models.MenuItemModel;
 import group3.la_panchina.models.MenuItemModel.MenuType;
+import jakarta.persistence.EntityManager;
 
 @DataJpaTest
 class MenuItemRepositoryTest {
 
     @Autowired
     private MenuItemRepository repo;
+
+    @Autowired
+    private EntityManager em;
 
     private MenuItemModel dish(String category, String name, MenuType type) {
         return new MenuItemModel(category, "test row", name, 10, type);
@@ -87,5 +92,53 @@ class MenuItemRepositoryTest {
         repo.flush();
 
         assertTrue(repo.findById(saved.getId()).isEmpty());
+    }
+
+        @Test
+    void iconsArePersistedAndReloaded() {
+        MenuItemModel d = dish("ZZ-Test", "ZZ spicy", MenuType.DINNER);
+        d.setIcons("SPICY,VEGETARIAN");
+        MenuItemModel saved = repo.saveAndFlush(d);
+        em.clear();
+
+        assertEquals("SPICY,VEGETARIAN", repo.findById(saved.getId()).orElseThrow().getIcons());
+    }
+
+    @Test
+    void dishWithoutIconsIsStoredAsNull() {
+        MenuItemModel saved = repo.saveAndFlush(dish("ZZ-Test", "ZZ plain", MenuType.DINNER));
+        em.clear();
+
+        assertNull(repo.findById(saved.getId()).orElseThrow().getIcons());
+    }
+
+    @Test
+    void iconsCanBeChangedAndCleared() {
+        MenuItemModel d = dish("ZZ-Test", "ZZ change", MenuType.DINNER);
+        d.setIcons("SPICY");
+        MenuItemModel saved = repo.saveAndFlush(d);
+
+        saved.setIcons("VEGETARIAN");
+        repo.saveAndFlush(saved);
+        em.clear();
+        assertEquals("VEGETARIAN", repo.findById(saved.getId()).orElseThrow().getIcons());
+
+        MenuItemModel reloaded = repo.findById(saved.getId()).orElseThrow();
+        reloaded.setIcons(null);
+        repo.saveAndFlush(reloaded);
+        em.clear();
+        assertNull(repo.findById(saved.getId()).orElseThrow().getIcons());
+    }
+
+    @Test
+    void findByMenuTypeReturnsTheStoredIcons() {
+        MenuItemModel d = dish("ZZ-Test", "ZZ tagged", MenuType.DINNER);
+        d.setIcons("SPICY");
+        repo.saveAndFlush(d);
+        em.clear();
+
+        List<MenuItemModel> dinners = repo.findByMenuType(MenuType.DINNER, Sort.by("id"));
+
+        assertEquals("SPICY", dinners.get(0).getIcons());
     }
 }
