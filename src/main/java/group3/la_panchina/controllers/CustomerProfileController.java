@@ -15,6 +15,7 @@ import group3.la_panchina.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+
 @Controller 
 @RequestMapping ("/profile")
 public class CustomerProfileController {
@@ -115,4 +116,23 @@ public class CustomerProfileController {
         redirectAttributes.addFlashAttribute("passwordSuccess", "Password updated successfully!");
         return "redirect:/profile";
     }
+
+    @GetMapping("/deactivate")
+    public String getDeactivePage(HttpSession session, HttpServletResponse response, Model model) {
+        User sessionUser = (User) session.getAttribute("session_user");
+        if(sessionUser == null){
+            return "redirect:/login";
+        }
+
+        response.setHeader("Cache-Control", "no-cahce, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+
+        Optional<User> freshUserOpt = userRepository.findById(sessionUser.getId());
+        User user = freshUserOpt.orElse(sessionUser);
+
+        model.addAttribute("user", user);
+        return "deactivateAccount";
+    }
+    
 }

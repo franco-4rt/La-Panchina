@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Deactivation — La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <!-- Site Navigation -->
+    <header class="site-header">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/menu}" class="nav-link">Menu</a></li>
+                    <li><a th:href="@{/reservations}" class="nav-link">Book a Table</a></li>
+                    <li><a th:href="@{/reviews}" class="nav-link">Reviews</a></li>
+                    <li><a th:href="@{/profile}" class="nav-link active">My Account</a></li>
+                    <li><a th:href="@{/logout}" class="nav-link">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="card">
+        <form th:action="@{/profile/deactivate}" method="post" style="padding: 0.5rem;">
+            <label for="password">Please enter your password to confirm:</label>
+            <input type="password" id="password" name="password" required class="input-box" style="width: auto;">
+            <button type="submit" class="btn btn-danger" style="background-color: red;">Permanently Delete My
+                Account</button>
+            <a th:href="@{/profile}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+
+</html>
