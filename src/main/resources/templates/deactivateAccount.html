@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Deactivation — La Panchina</title>
+    <title>Delete Account — La Panchina</title>
     <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -29,15 +29,37 @@
             </nav>
         </div>
     </header>
-    <div class="card">
-        <form th:action="@{/profile/deactivate}" method="post" style="padding: 0.5rem;">
-            <label for="password">Please enter your password to confirm:</label>
-            <input type="password" id="password" name="password" required class="input-box" style="width: auto;">
-            <button type="submit" class="btn btn-danger" style="background-color: red;">Permanently Delete My
-                Account</button>
-            <a th:href="@{/profile}" class="btn btn-secondary">Cancel</a>
-        </form>
-    </div>
+
+    <main class="container" style="max-width: 600px; margin-top: 50px; margin-bottom: 60px;">
+        <div class="card" style="padding: 2.5rem; text-align: left;">
+            <h2 style="margin-top: 0; color: #dc3545;">Delete Account</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">
+                Are you sure you want to delete your account, <strong th:text="${user.name}">Customer</strong>?
+            </p>
+
+            <!-- Permanent Deletion Warning -->
+            <div style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem;">
+                <strong>⚠️ Warning:</strong> This action is <strong>permanent</strong> and cannot be undone. All your account information, table reservations, and dining reviews will be completely deleted from our system.
+            </div>
+
+            <!-- Error message if password fails -->
+            <p th:if="${errorMessage}" th:text="${errorMessage}" class="warning-message" style="margin-bottom: 1.5rem;"></p>
+
+            <form th:action="@{/profile/deactivate}" method="post">
+                <div class="input-container">
+                    <label for="password" class="input-title">Confirm Your Password</label>
+                    <input type="password" id="password" name="password" required class="input-box" placeholder="Enter your password to confirm">
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary" style="background-color: #dc3545; border-color: #dc3545;">
+                        Permanently Delete My Account
+                    </button>
+                    <a th:href="@{/profile}" class="btn btn-secondary">Cancel & Return to Profile</a>
+                </div>
+            </form>
+        </div>
+    </main>
 </body>
 
 </html>
