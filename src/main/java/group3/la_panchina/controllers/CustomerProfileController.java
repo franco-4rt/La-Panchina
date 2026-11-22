@@ -19,6 +19,7 @@ import group3.la_panchina.repositories.BookingRepository;
 import group3.la_panchina.repositories.PasswordResetTokenRepository;
 import group3.la_panchina.repositories.ReviewRepository;
 import group3.la_panchina.repositories.UserRepository;
+import group3.la_panchina.services.PasswordValidator;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
@@ -118,8 +119,8 @@ public class CustomerProfileController {
             return "redirect:/profile";
         }
         // Validate new password length
-        if (newPassword == null || newPassword.length() < 6) {
-            redirectAttributes.addFlashAttribute("passwordError", "New password must be at least 6 characters long.");
+        if (!PasswordValidator.isValid(newPassword)) {
+            redirectAttributes.addFlashAttribute("passwordError", PasswordValidator.getErrorMsg());
             return "redirect:/profile";
         }
         // Validate confirmation

@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 
 import group3.la_panchina.models.User;
 import group3.la_panchina.repositories.UserRepository;
+import group3.la_panchina.services.PasswordValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -21,35 +22,34 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.PostMapping;
 
-
-
-@Controller 
+@Controller
 public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    
-    public AuthController(UserRepository userRepository){
+
+    public AuthController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @GetMapping("/signup")
     public String getSignupForm(Model model, HttpSession session) {
-        if(session.getAttribute("session_user") !=null){
+        if (session.getAttribute("session_user") != null) {
             return "redirect:/";
         }
-        if(!model.containsAttribute("user")){
+        if (!model.containsAttribute("user")) {
             model.addAttribute("user", new User());
         }
         return "signup";
     }
 
     @GetMapping("/logout")
-    public String destroySession(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+    public String destroySession(HttpServletRequest request, HttpServletResponse response,
+            RedirectAttributes redirectAttributes) {
         // Prevent caching of pages (from professor)
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
-        
+
         // Destroy the session (from professor)
         request.getSession().invalidate();
 
@@ -66,16 +66,21 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public String processSignup(@Valid @ModelAttribute ("user") User user, 
-                                BindingResult result, 
-                                HttpSession session, 
-                                RedirectAttributes redirectAttributes){
-        if(userRepository.existsByEmailIgnoreCase(user.getEmail()))
-            result.rejectValue("email", 
-                                "duplicate.email", 
-                                "An account with this email already exists.");
-        
-        if(result.hasErrors()){
+    public String processSignup(@Valid @ModelAttribute("user") User user,
+            BindingResult result,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
+            result.rejectValue("email",
+                    "duplicate.email",
+                    "An account with this email already exists.");
+        }
+
+        if (!PasswordValidator.isValid(user.getPassword())) {
+            result.rejectValue("password", "invalid.password", PasswordValidator.getErrorMsg());
+        }
+
+        if (result.hasErrors()) {
             return "signup";
         }
 
@@ -88,14 +93,14 @@ public class AuthController {
 
         return "redirect:/";
     }
-    
-     @PostMapping("/login")
+
+    @PostMapping("/login")
     public String login(@RequestParam String email,
-                        @RequestParam String password,
-                        HttpServletRequest request,
-                        HttpServletResponse response,
-                        RedirectAttributes redirectAttributes,
-                        Model model) {
+            @RequestParam String password,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            RedirectAttributes redirectAttributes,
+            Model model) {
         // Find user by email in database
         Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
         // Check if user exists and if BCrypt matches the hashed password
@@ -119,11 +124,11 @@ public class AuthController {
         request.getSession().setAttribute("session_user", user);
 
         redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + user.getName() + "!");
-        if("ADMIN".equalsIgnoreCase(user.getRole())){
+        if ("ADMIN".equalsIgnoreCase(user.getRole())) {
             return "redirect:/admin";
-        } else{
+        } else {
             return "redirect:/";
         }
     }
-    
+
 }

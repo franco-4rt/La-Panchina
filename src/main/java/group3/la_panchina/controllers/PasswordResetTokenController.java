@@ -4,6 +4,7 @@ import group3.la_panchina.models.PasswordResetToken;
 import group3.la_panchina.models.User;
 import group3.la_panchina.repositories.PasswordResetTokenRepository;
 import group3.la_panchina.repositories.UserRepository;
+import group3.la_panchina.services.PasswordValidator;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -112,9 +113,8 @@ public class PasswordResetTokenController {
             return "redirect:/forgot-password";
         }
 
-        if (newPassword == null || newPassword.length() < 6) {
-            model.addAttribute("token", token);
-            model.addAttribute("errorMessage", "Password must be at least 6 characters long.");
+        if (!PasswordValidator.isValid(newPassword)) {
+            model.addAttribute("errorMessage", PasswordValidator.getErrorMsg());
             return "resetPassword";
         }
 
