@@ -46,7 +46,7 @@ public class NotificationService
         EmailSender emailSender,
         NotificationMessages messages,
         @Value("${notifications.admin-email:${ADMIN_EMAIL:admin@lapanchina.com}}") String adminEmail,
-        @Value("${notifications.zone:America/Mexico_City}") String zone) {
+        @Value("${notifications.zone:America/Vancouver}") String zone) {
 
         this.bookingRepository = bookingRepository;
         this.notificationRepository = notificationRepository;
