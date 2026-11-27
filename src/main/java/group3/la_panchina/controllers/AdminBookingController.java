@@ -98,9 +98,10 @@ public class AdminBookingController {
         return "admin-booking-settings";
     }
 
-    // SAVE SETTINGS: admin updates the future booking limit
+    // SAVE SETTINGS: admin updates the booking window and the per-slot capacity
     @PostMapping("/bookings/settings")
     public String saveBookingSettings(@RequestParam int maxDaysAhead,
+                                      @RequestParam(defaultValue = "40") int maxCoversPerSlot,
                                       HttpSession session,
                                       HttpServletResponse response,
                                       RedirectAttributes redirectAttributes) {
@@ -109,18 +110,26 @@ public class AdminBookingController {
         }
         noCache(response);
 
-        // Business rule: keep the window sane (1 day to 1 year)
+        // Business rule: keep the booking window sane (1 day to 1 year)
         if (maxDaysAhead < 1 || maxDaysAhead > 365) {
             redirectAttributes.addFlashAttribute("errorMessage", "The booking window must be between 1 and 365 days.");
             return "redirect:/admin/bookings/settings";
         }
 
+        // Business rule: capacity must be a realistic positive number
+        if (maxCoversPerSlot < 1 || maxCoversPerSlot > 500) {
+            redirectAttributes.addFlashAttribute("errorMessage", "The capacity per time slot must be between 1 and 500 guests.");
+            return "redirect:/admin/bookings/settings";
+        }
+
         BookingSettings settings = bookingSettingsRepository.findById(1L).orElse(new BookingSettings());
         settings.setMaxDaysAhead(maxDaysAhead);
+        settings.setMaxCoversPerSlot(maxCoversPerSlot);
         bookingSettingsRepository.save(settings);
 
         redirectAttributes.addFlashAttribute("successMessage",
-                "Booking window updated: customers can now book up to " + maxDaysAhead + " days in advance.");
+                "Settings saved: bookings up to " + maxDaysAhead + " days ahead, "
+                + maxCoversPerSlot + " guests per time slot.");
 
         return "redirect:/admin/bookings/settings";
     }

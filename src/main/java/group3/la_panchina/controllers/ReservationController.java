@@ -135,6 +135,25 @@ public class ReservationController {
             return "reservations";
         }
 
+        // 7. Check remaining seats in this time slot (Story 2.9)
+        int capacity = settings.getMaxCoversPerSlot();
+        int alreadyBooked = seatsBookedInSlot(booking.getDate(), booking.getTime());
+        int seatsLeft = capacity - alreadyBooked;
+
+        if (booking.getPartySize() > seatsLeft) {
+            String slotLabel = String.format("%02d:00", booking.getTime().getHour());
+            if (seatsLeft <= 0) {
+                model.addAttribute("errorMessage",
+                        "Sorry, the " + slotLabel + " slot on that date is fully booked. Please choose another time.");
+            } else {
+                model.addAttribute("errorMessage",
+                        "Sorry, only " + seatsLeft + " seat(s) left in the " + slotLabel
+                        + " slot on that date. Please reduce your party size or choose another time.");
+            }
+            model.addAttribute("booking", booking);
+            return "reservations";
+        }
+
         // --- IF ALL GOOD, SAVE ---
         booking.setUser(user);
         bookingRepository.save(booking);
@@ -190,5 +209,24 @@ public class ReservationController {
 
         // 4. Redirect back to the my-bookings page
         return "redirect:/reservations/my-bookings";
+    }
+
+    // Helper: total seats already held in the same clock-hour slot.
+    // A slot is the hour block the booking starts in (19:00 and 19:30 share the 19:00 slot).
+    // Cancelled bookings do not hold seats.
+    private int seatsBookedInSlot(LocalDate date, LocalTime time) {
+        LocalTime slotStart = time.withMinute(0).withSecond(0).withNano(0);
+        LocalTime slotEnd = slotStart.plusHours(1); // latest booking is 21:00, so no midnight wrap
+
+        List<Booking> inSlot = bookingRepository
+                .findByDateAndTimeGreaterThanEqualAndTimeLessThan(date, slotStart, slotEnd);
+
+        int seats = 0;
+        for (Booking b : inSlot) {
+            if (!"cancelled".equalsIgnoreCase(b.getStatus())) {
+                seats += b.getPartySize();
+            }
+        }
+        return seats;
     }
 }

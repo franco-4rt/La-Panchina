@@ -36,6 +36,18 @@
                             <strong th:text="${settings.maxDaysAhead}">60</strong> days ahead.
                         </p>
                     </div>
+                    <div style="margin-bottom:1rem;">
+                        <label for="maxCoversPerSlot" style="display:block; margin-bottom:0.5rem; font-weight:600;">
+                            How many guests can be seated per time slot?
+                        </label>
+                        <input type="number" id="maxCoversPerSlot" name="maxCoversPerSlot"
+                               th:value="${settings.maxCoversPerSlot}" min="1" max="500" required
+                               style="width:100%; padding:0.7rem; border:1px solid var(--color-border); border-radius:var(--radius);">
+                        <p style="margin-top:0.5rem; font-size:0.9rem; color:#666;">
+                            Allowed range: 1 to 500 guests. A time slot is one clock hour, so 19:00 and 19:30
+                            share the same slot. Currently <strong th:text="${settings.maxCoversPerSlot}">40</strong> guests per slot.
+                        </p>
+                    </div>
 
                     <button type="submit" class="btn btn-primary" style="width:100%;">Save Settings</button>
                 </form>

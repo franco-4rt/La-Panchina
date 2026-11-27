@@ -6,25 +6,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * Holds admin-configurable booking rules.
- * This table only ever has ONE row (id = 1), which is a common pattern
- * for "application settings" that an admin can edit at runtime.
+ * Admin-configurable booking rules. Single row table (id = 1).
  */
 @Entity
 @Table(name = "booking_settings")
 public class BookingSettings {
 
-    // Fixed id of 1: there is only ever one settings row.
-    // No @GeneratedValue because we assign the id ourselves.
     @Id
     private Long id = 1L;
 
-    // How many days into the future a customer is allowed to book.
-    // Default is 60 days until an admin changes it.
+    // How far ahead customers may book
     @Column(nullable = false)
     private int maxDaysAhead = 60;
 
-    // JPA requires a no-argument constructor
+    // Maximum number of guests (covers) that can be seated in one clock-hour slot.
+    // Default 40 until an admin changes it.
+    @Column(nullable = false)
+    private int maxCoversPerSlot = 40;
+
     public BookingSettings() {
     }
 
@@ -42,5 +41,13 @@ public class BookingSettings {
 
     public void setMaxDaysAhead(int maxDaysAhead) {
         this.maxDaysAhead = maxDaysAhead;
+    }
+
+    public int getMaxCoversPerSlot() {
+        return maxCoversPerSlot;
+    }
+
+    public void setMaxCoversPerSlot(int maxCoversPerSlot) {
+        this.maxCoversPerSlot = maxCoversPerSlot;
     }
 }
