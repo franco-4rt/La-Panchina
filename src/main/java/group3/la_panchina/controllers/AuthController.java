@@ -86,6 +86,7 @@ public class AuthController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("CUSTOMER");
+        user.recordLogin();
         User savedUser = userRepository.save(user);
 
         session.setAttribute("session_user", savedUser);
@@ -116,6 +117,8 @@ public class AuthController {
         }
 
         User user = optionalUser.get();
+        user.recordLogin();
+        user = userRepository.save(user);
         // Prevent caching of authenticated pages (from professor's code)
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         response.setHeader("Pragma", "no-cache");

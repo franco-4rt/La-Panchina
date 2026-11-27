@@ -115,6 +115,8 @@ public class GoogleOAuthController {
                 user = userRepository.save(user);
             }
 
+            user.recordLogin();
+            user = userRepository.save(user);
             // Save to session using session_user, login the user
             session.setAttribute("session_user", user);
             redirectAttributes.addFlashAttribute("successMessage", "Welcome, " + user.getName() + "!");

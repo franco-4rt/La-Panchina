@@ -109,7 +109,7 @@
             <!-- Security & Password -->
             <div class="card" style="text-align: left; padding: 2rem;">
                 <h3 style="margin-bottom: 0.5rem;">Security &amp; Password</h3>
-                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Change your login password (minimum 6
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Change your login password (minimum 12
                     characters).</p>
 
                 <!-- Feedback alerts -->
@@ -117,6 +117,23 @@
                     style="margin-bottom: 1rem;"></p>
                 <p th:if="${passwordError}" th:text="${passwordError}" class="warning-message"></p>
 
+                <!-- Login Timestamps (Story 1.10) -->
+                <div
+                    style="background-color: var(--color-surface-warm); padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; font-size: 0.9rem;">
+                    <p style="margin: 0 0 0.35rem 0;">
+                        <strong>Current Login:</strong>
+                        <span th:if="${user.lastLoginAt != null}"
+                            th:text="${#temporals.format(user.lastLoginAt, 'MMM dd, yyyy HH:mm')}">N/A</span>
+                        <span th:if="${user.lastLoginAt == null}">Just now</span>
+                    </p>
+                    <p style="margin: 0;">
+                        <strong>Previous Login:</strong>
+                        <span th:if="${user.previousLoginAt != null}"
+                            th:text="${#temporals.format(user.previousLoginAt, 'MMM dd, yyyy HH:mm')}">N/A</span>
+                        <span th:if="${user.previousLoginAt == null}">No previous login recorded</span>
+                    </p>
+                </div>
+                
                 <form th:action="@{/profile/password}" method="post">
                     <!-- Current Password -->
                     <div class="input-container">

@@ -1,6 +1,7 @@
 package group3.la_panchina.models;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -44,6 +45,29 @@ public class User implements Serializable{
     @Column (length = 10)
     private String contactPreference = "Email";
 
+    private LocalDateTime lastLoginAt;
+    private LocalDateTime previousLoginAt;
+
+    public LocalDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
+    }
+
+    public void recordLogin(){
+        this.previousLoginAt = this.lastLoginAt;
+        this.lastLoginAt = LocalDateTime.now();
+    }
+    public LocalDateTime getPreviousLoginAt() {
+        return previousLoginAt;
+    }
+
+    public void setPreviousLoginAt(LocalDateTime previousLoginAt) {
+        this.previousLoginAt = previousLoginAt;
+    }
+    
     public User(){}
 
     public User(String name, String email, String password, String role){
