@@ -8,6 +8,12 @@ import org.springframework.stereotype.Component;
 
 import group3.la_panchina.models.Booking;
 
+// Builds the text of the SMS notifications sent to customers who chose SMS as their contact preference.
+// Only builds the message; sending is done by an SmsSender.
+// There is no administrator message: the admin alert is always sent via email.
+// Text are written in Spanish without accents: they make the messages longer and expensive. They are kept short for the same reason.
+// Using accents make the SMS use a mode where only 70 characters fit instead of the 160 using plain characters.
+
 @Component 
 public class SmsMessages {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
