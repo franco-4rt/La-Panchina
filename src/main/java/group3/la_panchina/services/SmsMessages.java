@@ -35,10 +35,10 @@ public class SmsMessages {
         return new SmsMessage(to, plain(body));
     }
 
-    // US6: Sent to the customer a few hours efore the booking time
+    // US6: Sent to the customer a few hours before the booking time
     public SmsMessage bookingReminder(String to, Booking booking)
     {
-        String body = "La Panchina: tu reserva #%s para el %s a las %s (%s) ha sido confirmada. Te esperamos!"
+        String body = "La Panchina: recordatorio de tu reserva #%s para el %s a las %s (%s). Te esperamos!"
         .formatted(booking.getId(), date(booking), time(booking), people(booking));
         return new SmsMessage(to, plain(body));
     }
