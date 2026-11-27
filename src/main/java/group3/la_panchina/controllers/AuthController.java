@@ -1,6 +1,8 @@
 package group3.la_panchina.controllers;
 
 import java.util.Optional;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -102,21 +104,46 @@ public class AuthController {
             HttpServletResponse response,
             RedirectAttributes redirectAttributes,
             Model model) {
+
         // Find user by email in database
         Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
-        // Check if user exists and if BCrypt matches the hashed password
         if (optionalUser.isEmpty()) {
             model.addAttribute("errorMessage", "Account doesn't exist");
             model.addAttribute("email", email);
             return "login";
         }
-        if (optionalUser.isEmpty() || !passwordEncoder.matches(password, optionalUser.get().getPassword())) {
-            model.addAttribute("errorMessage", "Invalid password.");
-            model.addAttribute("email", email); // Keep typed email in the box
+
+        User user = optionalUser.get();
+
+        // Block login if account is currently locked (Story 1.11)
+        if (user.accountLocked()) {
+            long minutesLeft = Duration.between(LocalDateTime.now(), user.getLockUntil()).toMinutes() + 1;
+            model.addAttribute("errorMessage",
+                    "Account is temporarily locked due to too many failed login attempts. Try again in " + minutesLeft
+                            + " minute(s).");
+            model.addAttribute("email", email);
             return "login";
         }
 
-        User user = optionalUser.get();
+        // Check if BCrypt matches the hashed password
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            user.registerFailedLogin();
+            userRepository.save(user);
+
+            if (user.accountLocked()) {
+                model.addAttribute("errorMessage",
+                        "Too many failed login attempts. Your account is locked for 15 minutes.");
+            } else {
+                int remaining = User.MAX_FAILED_ATTEMPTS - user.getFailedLoginAttempts();
+                model.addAttribute("errorMessage",
+                        "Invalid password. " + remaining + " attempt(s) remaining before temporary lockout.");
+            }
+            model.addAttribute("email", email);
+            return "login";
+        }
+
+        // Successful login: reset failed attempts & record login timestamp
+        user.resetFailedLogins();
         user.recordLogin();
         user = userRepository.save(user);
         // Prevent caching of authenticated pages (from professor's code)

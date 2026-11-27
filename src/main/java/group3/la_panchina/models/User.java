@@ -47,6 +47,51 @@ public class User implements Serializable{
 
     private LocalDateTime lastLoginAt;
     private LocalDateTime previousLoginAt;
+    public static final int MAX_FAILED_ATTEMPTS = 5;
+    public static final int LOCK_DURATION_MINUTES = 15;
+
+    private Integer failedLoginAttempts = 0;
+
+    private LocalDateTime lockUntil;
+
+    public boolean accountLocked(){
+        return lockUntil != null && LocalDateTime.now().isBefore(lockUntil);
+    }
+
+    public void registerFailedLogin(){
+        // Reset the failed counter in the lock is expired
+        if(lockUntil != null && !LocalDateTime.now().isBefore(lockUntil)){
+            this.failedLoginAttempts = 0;
+            this.lockUntil = null;
+        }
+        int current = (this.failedLoginAttempts == null) ? 0 : this.failedLoginAttempts;
+        this.failedLoginAttempts = current + 1;
+
+        if(this.failedLoginAttempts >= MAX_FAILED_ATTEMPTS){
+            this.lockUntil = LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES);
+        }
+    }
+
+    public void resetFailedLogins(){
+        this.failedLoginAttempts = 0;
+        this.lockUntil = null;
+    }
+
+    public int getFailedLoginAttempts(){
+        return (failedLoginAttempts == null) ? 0 : failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(Integer failedLoginAttempts){
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public LocalDateTime getLockUntil(){
+        return lockUntil;
+    }
+
+    public void setLockUntil(LocalDateTime lockUntil){
+        this.lockUntil = lockUntil;
+    }
 
     public LocalDateTime getLastLoginAt() {
         return lastLoginAt;
@@ -67,7 +112,7 @@ public class User implements Serializable{
     public void setPreviousLoginAt(LocalDateTime previousLoginAt) {
         this.previousLoginAt = previousLoginAt;
     }
-    
+
     public User(){}
 
     public User(String name, String email, String password, String role){
