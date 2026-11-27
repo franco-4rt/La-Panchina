@@ -29,7 +29,7 @@ import group3.la_panchina.repositories.UserRepository;
 
 // Test on notiication service with in-memory H2 database and a fake email sender
 @DataJpaTest (properties = "notifications.admin-email=admin@test.com")
-@Import ({NotificationService.class, NotificationMessages.class, NotificationServiceTest.FakeSenderConfig.class})
+@Import ({NotificationService.class, NotificationMessages.class, SmsMessages.class, NotificationServiceTest.FakeSenderConfig.class})
 class NotificationServiceTest {
     
     // Fake sender: records the emails instead of sending them
@@ -49,6 +49,23 @@ class NotificationServiceTest {
         }
     }
 
+    // Fake SMS sender: records the text messages instead of sending them
+    static class RecordingSmsSender implements SmsSender
+    {
+        final List<SmsMessage> sent = new ArrayList<>();
+        boolean failing = false;
+
+        @Override 
+        public void send(SmsMessage message)
+        {
+            if (failing)
+            {
+                throw new SmsSendException("simulated failure");
+            }
+            sent.add(message);
+        }
+    }
+
     @TestConfiguration
     static class FakeSenderConfig
     {
@@ -57,12 +74,20 @@ class NotificationServiceTest {
         {
             return new RecordingEmailSender();
         }
+
+        @Bean
+        RecordingSmsSender smsSender()
+        {
+            return new RecordingSmsSender();
+        }
     }
 
     @Autowired
     private NotificationService service;
     @Autowired 
     private RecordingEmailSender sender;
+    @Autowired 
+    private RecordingSmsSender smsSender;
     @Autowired 
     private BookingRepository bookingRepository;
     @Autowired 
@@ -76,6 +101,8 @@ class NotificationServiceTest {
     {
         sender.sent.clear();
         sender.failing = false;
+        smsSender.sent.clear();
+        smsSender.failing = false;
     }
 
     // Fixed "current time" for the reminder tests: Dec 24, 2026 at 12:00
