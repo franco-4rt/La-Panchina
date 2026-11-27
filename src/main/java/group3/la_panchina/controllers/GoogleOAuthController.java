@@ -115,6 +115,11 @@ public class GoogleOAuthController {
                 user = userRepository.save(user);
             }
 
+            if (user.isSuspended()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Your account has been suspended by an administrator.");
+                return "redirect:/login";
+            }
+
             user.recordLogin();
             user = userRepository.save(user);
             // Save to session using session_user, login the user

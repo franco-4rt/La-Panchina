@@ -115,6 +115,13 @@ public class AuthController {
 
         User user = optionalUser.get();
 
+        // Block login if account is suspended by admin (Story 1.12)
+        if (user.isSuspended()) {
+            model.addAttribute("errorMessage", "Your account has been suspended by an administrator.");
+            model.addAttribute("email", email);
+            return "login";
+        }
+
         // Block login if account is currently locked (Story 1.11)
         if (user.accountLocked()) {
             long minutesLeft = Duration.between(LocalDateTime.now(), user.getLockUntil()).toMinutes() + 1;

@@ -54,6 +54,16 @@ public class User implements Serializable{
 
     private LocalDateTime lockUntil;
 
+    private Boolean suspended = false;
+
+    public boolean isSuspended(){
+        return Boolean.TRUE.equals(suspended);
+    }
+
+    public void setSuspended(Boolean suspended) {
+        this.suspended = suspended;
+    }
+
     public boolean accountLocked(){
         return lockUntil != null && LocalDateTime.now().isBefore(lockUntil);
     }
