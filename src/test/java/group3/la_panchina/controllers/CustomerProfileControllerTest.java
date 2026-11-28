@@ -24,6 +24,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import group3.la_panchina.models.User;
 import group3.la_panchina.repositories.UserRepository;
+import group3.la_panchina.services.PasswordValidator;
 
 public class CustomerProfileControllerTest {
 
@@ -175,7 +176,7 @@ public class CustomerProfileControllerTest {
                 .param("confirmPassword", "12345"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/profile"))
-                .andExpect(flash().attribute("passwordError", "New password must be at least 6 characters long."));
+                .andExpect(flash().attribute("passwordError", PasswordValidator.getErrorMsg()));
 
         verify(userRepository, never()).save(any(User.class));
     }
@@ -220,5 +221,57 @@ public class CustomerProfileControllerTest {
 
         verify(userRepository).save(any(User.class));
         assertTrue(passwordEncoder.matches("brandNewPassword123", testUser.getPassword()));
+    }
+
+    @Test
+    void ShowDeactivatePage_AsCustomer_ReturnsView() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("session_user", testUser);
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
+        mockMvc.perform(get("/profile/deactivate").session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("deactivateAccount"))
+                .andExpect(model().attributeExists("user"));
+    }
+
+    @Test
+    void ShowDeactivatePage_AsGuest_RedirectsToLogin() throws Exception {
+        mockMvc.perform(get("/profile/deactivate"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void DeactivateAccount_WrongPassword_Fails() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("session_user", testUser);
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
+        mockMvc.perform(post("/profile/deactivate")
+                .session(session)
+                .param("password", "wrongpassword123"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/profile/deactivate"))
+                .andExpect(flash().attribute("errorMessage", "Incorrect password. Account deactivation cancelled."));
+
+        verify(userRepository, never()).delete(any(User.class));
+    }
+
+    @Test
+    void DeactivateAccount_ValidPassword_DeletesUserAndInvalidatesSession() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("session_user", testUser);
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+
+        mockMvc.perform(post("/profile/deactivate")
+                .session(session)
+                .param("password", "oldPassword123"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("successMessage"));
+
+        verify(userRepository).delete(testUser);
+        assertTrue(session.isInvalid());
     }
 }

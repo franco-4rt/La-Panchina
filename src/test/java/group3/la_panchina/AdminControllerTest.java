@@ -1,15 +1,20 @@
 package group3.la_panchina;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockHttpSession;
@@ -45,7 +50,8 @@ public class AdminControllerTest {
                 .build();
     }
 
-    // Ensure that an Admin user can view the dashboard with the list of users and no-cache headers
+    // Ensure that an Admin user can view the dashboard with the list of users and
+    // no-cache headers
     @Test
     void AdminDashboardAsAdminReturnsAdminViewWithUsers() throws Exception {
         User admin = new User("Admin", "admin@lapanchina.com", "secret", "ADMIN");
@@ -72,7 +78,8 @@ public class AdminControllerTest {
         verify(userRepository).findAll();
     }
 
-    // Ensure that a logged-in Customer cannot access the admin dashboard and is redirected to /login
+    // Ensure that a logged-in Customer cannot access the admin dashboard and is
+    // redirected to /login
     @Test
     void AdminDashboardAsCustomerRedirectsToLogin() throws Exception {
         User customer = new User("Alice", "alice@example.com", "secret", "CUSTOMER");
@@ -87,7 +94,8 @@ public class AdminControllerTest {
         verify(userRepository, never()).findAll();
     }
 
-    // Ensure that an unauthenticated guest cannot access the admin dashboard and is redirected to /login
+    // Ensure that an unauthenticated guest cannot access the admin dashboard and is
+    // redirected to /login
     @Test
     void AdminDashboardAsGuestRedirectsToLogin() throws Exception {
         mockMvc.perform(get("/admin"))
@@ -96,5 +104,57 @@ public class AdminControllerTest {
 
         // Sensitive user list must never be avaliable for guests
         verify(userRepository, never()).findAll();
+    }
+
+    @Test
+    void AdminCanSuspendCustomer() throws Exception {
+        User admin = new User("Admin", "admin@lapanchina.com", "secret", "ADMIN");
+        User customer = new User("Alice", "alice@example.com", "secret", "CUSTOMER");
+        customer.setId(2L);
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(customer));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("session_user", admin);
+
+        mockMvc.perform(post("/admin/users/2/toggle-suspend").session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin"))
+                .andExpect(flash().attributeExists("successMessage"));
+
+        assertTrue(customer.isSuspended());
+        verify(userRepository).save(customer);
+    }
+
+    @Test
+    void AdminCannotSuspendAnotherAdmin() throws Exception {
+        User admin = new User("Admin", "admin@lapanchina.com", "secret", "ADMIN");
+        User otherAdmin = new User("Admin2", "admin2@lapanchina.com", "secret", "ADMIN");
+        otherAdmin.setId(3L);
+
+        when(userRepository.findById(3L)).thenReturn(Optional.of(otherAdmin));
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("session_user", admin);
+
+        mockMvc.perform(post("/admin/users/3/toggle-suspend").session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin"))
+                .andExpect(flash().attribute("errorMessage", "Administrator accounts cannot be suspended."));
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void CustomerCannotSuspendUsers() throws Exception {
+        User customer = new User("Alice", "alice@example.com", "secret", "CUSTOMER");
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("session_user", customer);
+
+        mockMvc.perform(post("/admin/users/2/toggle-suspend").session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+
+        verify(userRepository, never()).findById(any());
     }
 }

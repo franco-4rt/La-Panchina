@@ -24,6 +24,7 @@ import group3.la_panchina.models.PasswordResetToken;
 import group3.la_panchina.models.User;
 import group3.la_panchina.repositories.PasswordResetTokenRepository;
 import group3.la_panchina.repositories.UserRepository;
+import group3.la_panchina.services.PasswordValidator;
 
 public class PasswordResetTokenControllerTest {
 
@@ -142,7 +143,7 @@ public class PasswordResetTokenControllerTest {
                 .param("confirmPassword", "123"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("resetPassword"))
-                .andExpect(model().attribute("errorMessage", "Password must be at least 6 characters long."));
+                .andExpect(model().attribute("errorMessage", PasswordValidator.getErrorMsg()));
 
         verify(userRepository, never()).save(any(User.class));
     }
