@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
@@ -392,5 +393,212 @@ class NotificationServiceTest {
 
         assertEquals(3, sender.sent.size());
         assertTrue(sender.sent.get(2).subject().contains("confirmada"));
+    }
+
+    // =========== SMS Notifications (Iteration 3) =============
+
+    // Helper: saves a customer who chose the given contact preference and phone, and a booking for December 24, 2026 at 19:30
+    private Booking saveSmsBooking(String status, String preference, String phone)
+    {
+        return saveSmsBooking(status, preference, phone, LocalDate.of(2026, 12, 24), LocalTime.of(19, 30));
+    }
+
+    private Booking saveSmsBooking(String status, String preference, String phone, LocalDate date, LocalTime time)
+    {
+        User customer = new User("John Doe", "sms-" + status + "@example.com", "xxxx", "CUSTOMER");
+        customer.setPhone(phone);
+        customer.setContactPreference(preference);
+        customer = userRepository.save(customer);
+
+        Booking booking = new Booking();
+        booking.setUser(customer);
+        booking.setName("John Doe");
+        booking.setDate(date);
+        booking.setTime(time);
+        booking.setPartySize(4);
+        booking.setStatus(status);
+        return bookingRepository.save(booking);
+    }
+
+    // Helper: The notification saved for a booking and notification type
+    private Notification rowOf(Booking booking, NotificationType type)
+    {
+        return notificationRepository.findByBookingIdAndType(booking.getId(), type).orElseThrow();
+    }
+
+    // *SC = Success Case, FC = Failure Case
+
+    // SC: a customer who chose SMS gets the confirmation by text; the administrator still gets an email
+    @Test 
+    void smsCustomerGetsTheConfirmationBySmsOnly()
+    {
+        Booking booking = saveSmsBooking("pending", "SMS", "(604) 321-4567");
+
+        service.sendNewBookingNotifications();
+
+        assertEquals(1, smsSender.sent.size());
+        assertEquals("+16043214567", smsSender.sent.get(0).to());
+        assertTrue(smsSender.sent.get(0).body().contains("reserva"));
+        assertEquals(1, sender.sent.size());
+        assertEquals("admin@test.com", sender.sent.get(0).to());
+
+        Notification confirmation = rowOf(booking, NotificationType.BOOKING_CONFIRMATION);
+        assertEquals("SMS", confirmation.getChannel());
+        assertEquals("+16043214567", confirmation.getRecipient());
+        assertEquals(NotificationStatus.SENT, confirmation.getStatus());
+        assertEquals("EMAIL", rowOf(booking, NotificationType.ADMIN_NEW_BOOKING).getChannel());
+    }
+
+    // SC: the preference can be saved in any capitalization (e.g. "sms" & "SMS")
+    @Test 
+    void smsPreferenceIsNotCaseSensitive()
+    {
+        saveSmsBooking("pending", "sms", "604-321-4567");
+
+        service.sendNewBookingNotifications();
+
+        assertEquals(1, smsSender.sent.size());
+    }
+
+    // SC: a customer who chose email get no SMS
+    @Test 
+    void emailCustomerGetsNoSms()
+    {
+        Booking booking = saveBooking("pending");
+
+        service.sendNewBookingNotifications();
+
+        assertEquals(0, smsSender.sent.size());
+        assertEquals(2, sender.sent.size());
+        assertEquals("EMAIL", rowOf(booking, NotificationType.BOOKING_CONFIRMATION).getChannel());
+    }
+
+    // FC: customer who chose SMS with an invalid phone number gets nothing (saved as SKIPPED), and the admin still gets the alert (so it can still see the booking made)
+    @Test 
+    void invalidPhoneGetsNothingWhenSmsIsChosen()
+    {
+        Booking booking = saveSmsBooking("pending", "SMS", "098-765-4321");
+
+        service.sendNewBookingNotifications();
+        service.sendNewBookingNotifications();
+
+        assertEquals(0, smsSender.sent.size());
+        assertEquals(1, sender.sent.size());
+        assertEquals("admin@test.com", sender.sent.get(0).to());
+
+        Notification confirmation = rowOf(booking, NotificationType.BOOKING_CONFIRMATION);
+        assertEquals(NotificationStatus.SKIPPED, confirmation.getStatus());
+        assertEquals("SMS", confirmation.getChannel());
+        assertNull(confirmation.getRecipient());
+        assertEquals("Invalid phone number for SMS", confirmation.getError());
+    }
+
+    // SC: running the job again does not send the same text twice
+    @Test 
+    void smsIsNotSentTwice()
+    {
+        saveSmsBooking("pending", "SMS", "604-321-4567");
+
+        service.sendNewBookingNotifications();
+        service.sendNewBookingNotifications();
+
+        assertEquals(1, smsSender.sent.size());
+    }
+
+    // FC: a failed text is recorded and retried on the next run
+    @Test 
+    void failedSmsIsRecordedAndRetried()
+    {
+        Booking booking = saveSmsBooking("pending", "SMS", "604-321-4567");
+
+        smsSender.failing = true;
+        service.sendNewBookingNotifications();
+        assertEquals(NotificationStatus.FAILED, statusOf(booking, NotificationType.BOOKING_CONFIRMATION));
+        assertEquals(0, smsSender.sent.size());
+
+        smsSender.failing = false;
+        service.sendNewBookingNotifications();
+        assertEquals(NotificationStatus.SENT, statusOf(booking, NotificationType.BOOKING_CONFIRMATION));
+        assertEquals(1, smsSender.sent.size());
+        assertEquals(2, rowOf(booking, NotificationType.BOOKING_CONFIRMATION).getAttempts());
+    }
+
+    // FC: after the maximum numbers of attempts the job gives up on the text
+    @Test 
+    void smsStopsRetryingAfterMaximumAttempts()
+    {
+        Booking booking = saveSmsBooking("pending", "SMS", "604-321-4567");
+
+        smsSender.failing = true;
+        for (int run = 0; run < NotificationService.MAX_ATTEMPTS + 1; run++)
+        {
+            service.sendNewBookingNotifications();
+        }
+
+        assertEquals(NotificationService.MAX_ATTEMPTS, rowOf(booking, NotificationType.BOOKING_CONFIRMATION).getAttempts());
+    }
+
+    // SC: a booking starting in 3 hours (booked days ago) gets the reminder by SMS
+    @Test 
+    void smsReminderIsSentToSmsCustomers()
+    {
+        Booking booking = saveSmsBooking("pending", "SMS", "604-321-4567", LocalDate.of(2026, 12, 24), LocalTime.of(15, 0));
+        service.sendNewBookingNotifications();
+        setConfirmationCreatedAt(booking, NOW.minusDays(2).toInstant());
+        sender.sent.clear();
+        smsSender.sent.clear();
+
+        service.sendReminders(NOW);
+
+        assertEquals(1, smsSender.sent.size());
+        assertEquals("+16043214567", smsSender.sent.get(0).to());
+        assertTrue(smsSender.sent.get(0).body().contains("recordatorio"));
+        assertEquals(0, sender.sent.size());
+        assertEquals("SMS", rowOf(booking, NotificationType.REMINDER).getChannel());
+        assertEquals(NotificationStatus.SENT, statusOf(booking, NotificationType.REMINDER));
+    }
+
+    // FC: a customer who chose SMS with an invalid phone gets no reminder
+    @Test 
+    void noReminderwhenTheSmsPhoneIsInvalid()
+    {
+        Booking booking = saveSmsBooking("pending", "SMS", "098-765-4321", LocalDate.of(2026, 12, 24), LocalTime.of(15, 0));
+        service.sendNewBookingNotifications();
+        setConfirmationCreatedAt(booking, NOW.minusDays(2).toInstant());
+        sender.sent.clear();
+
+        service.sendReminders(NOW);
+
+        assertEquals(0, smsSender.sent.size());
+        assertEquals(0, sender.sent.size());
+        assertEquals(NotificationStatus.SKIPPED, statusOf(booking, NotificationType.REMINDER));
+    }
+
+    // SC: when the administrator confirms the booking, the SMS customer gets a text (no email)
+    @Test 
+    void confirmedBookingSendsTheConfirmedSms()
+    {
+        Booking booking = saveSmsBooking("confirmed", "SMS", "604-321-4567");
+
+        service.sendStatusNotifications(NOW);
+
+        assertEquals(1, smsSender.sent.size());
+        assertTrue(smsSender.sent.get(0).body().contains("confirmada"));
+        assertEquals(0, sender.sent.size());
+        assertEquals(NotificationStatus.SENT, statusOf(booking, NotificationType.STATUS_CONFIRMED));
+    }
+
+    // SC: when the administrator cancels the booking, the SMS customer gets a text
+    @Test 
+    void cancelledBookingSendsTheCancelledSms()
+    {
+        Booking booking = saveSmsBooking("cancelled", "SMS", "604-321-4567");
+
+        service.sendStatusNotifications(NOW);
+
+         assertEquals(1, smsSender.sent.size());
+        assertTrue(smsSender.sent.get(0).body().contains("cancelada"));
+        assertEquals(0, sender.sent.size());
+        assertEquals(NotificationStatus.SENT, statusOf(booking, NotificationType.STATUS_CANCELLED));
     }
 }
