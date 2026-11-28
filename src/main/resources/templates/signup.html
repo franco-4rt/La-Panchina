@@ -54,7 +54,10 @@
                 <div class="input-container">
                     <label for="password" class="input-title">Password</label>
                     <input class="input-box" type="password" id="password" th:field="*{password}" required
-                        placeholder="--------">
+                        placeholder="--------" minlength="12">
+                    <p style="color: #777; font-size: 0.8rem; margin: 0.25rem 0 0.5rem 0;">
+                        Must be at least 12 characters, including uppercase, lowercase, and a number.
+                    </p>
                     <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="warning-message"></p>
                 </div>
 

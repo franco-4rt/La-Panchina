@@ -106,6 +106,7 @@ public class GoogleOAuthController {
             } else {
                 // Create new customer account
                 user = new User();
+                user.setGoogleAccount(true);
                 user.setName(userData.getName() != null ? userData.getName() : "Google User");
                 user.setEmail(userData.getEmail());
                 user.setRole("CUSTOMER");
@@ -115,6 +116,13 @@ public class GoogleOAuthController {
                 user = userRepository.save(user);
             }
 
+            if (user.isSuspended()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Your account has been suspended by an administrator.");
+                return "redirect:/login";
+            }
+
+            user.recordLogin();
+            user = userRepository.save(user);
             // Save to session using session_user, login the user
             session.setAttribute("session_user", user);
             redirectAttributes.addFlashAttribute("successMessage", "Welcome, " + user.getName() + "!");

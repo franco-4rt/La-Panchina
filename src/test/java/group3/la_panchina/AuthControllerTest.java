@@ -3,6 +3,8 @@ package group3.la_panchina;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -12,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +39,7 @@ public class AuthControllerTest {
     private UserRepository userRepository;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         authController = new AuthController(userRepository);
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
@@ -45,11 +48,13 @@ public class AuthControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(authController)
                 .setViewResolvers(viewResolver)
                 .build();
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
-    // Make sure that the signup page loads up for guests and an empty User object from GET /signup
+    // Make sure that the signup page loads up for guests and an empty User object
+    // from GET /signup
     @Test
-    void ReturnSignupView() throws Exception{
+    void ReturnSignupView() throws Exception {
         mockMvc.perform(get("/signup"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("signup"))
@@ -57,8 +62,8 @@ public class AuthControllerTest {
     }
 
     // Make sure that /signup redirects already logged-in users to the homepage
-    @Test 
-    void RedirectHome() throws Exception{
+    @Test
+    void RedirectHome() throws Exception {
         User user = new User("Alice", "alice@example.com", "secret", "CUSTOMER");
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("session_user", user);
@@ -68,51 +73,56 @@ public class AuthControllerTest {
                 .andExpect(redirectedUrl("/"));
     }
 
-    // Ensure valid registration hashes password with BCrypt, sets role to CUSTOMER, saves users, and logs the user in
-    @Test 
-    void Signup_Success()throws Exception{
+    // Ensure valid registration hashes password with BCrypt, sets role to CUSTOMER,
+    // saves users, and logs the user in
+    @Test
+    void Signup_Success() throws Exception {
         when(userRepository.existsByEmailIgnoreCase("alice@example.com")).thenReturn(false);
-            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-            mockMvc.perform(post("/signup")
-                    .param("name", "Alice")
-                    .param("email", "alice@example.com")
-                    .param("password", "secret123")
-                    .param("phone", "555-123-4567"))
-                    .andExpect(status().is3xxRedirection())
-                    .andExpect(redirectedUrl("/"))
-                    .andExpect(flash().attributeExists("successMessage"));
+        mockMvc.perform(post("/signup")
+                .param("name", "Alice")
+                .param("email", "alice@example.com")
+                .param("password", "SecretPassword123")
+                .param("phone", "555-123-4567"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attributeExists("successMessage"));
 
-            // Use ArgumentCaptor to inspeact the saved User entity (from professor's example)
-            ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-            verify(userRepository).save(userCaptor.capture());
+        // Use ArgumentCaptor to inspeact the saved User entity (from professor's
+        // example)
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
 
-            User savedUser = userCaptor.getValue();
-            assertEquals("Alice", savedUser.getName());
-            assertEquals("alice@example.com", savedUser.getEmail());
-            assertEquals("CUSTOMER", savedUser.getRole());
-            assertNotEquals("secret123", savedUser.getPassword()); // To make sure the password is not saved as plain text
-            assertTrue(new BCryptPasswordEncoder().matches("secret123", savedUser.getPassword()));
+        User savedUser = userCaptor.getValue();
+        assertEquals("Alice", savedUser.getName());
+        assertEquals("alice@example.com", savedUser.getEmail());
+        assertEquals("CUSTOMER", savedUser.getRole());
+        assertNotEquals("SecretPassword123", savedUser.getPassword()); // To make sure the password is not saved as
+                                                                       // plain text
+        assertTrue(new BCryptPasswordEncoder().matches("SecretPassword123", savedUser.getPassword()));
     }
 
-    // Ensure signing up with an already exist email fails and does not save to the DB
-    @Test 
-    void DuplicateEmail_Fails() throws Exception{
+    // Ensure signing up with an already exist email fails and does not save to the
+    // DB
+    @Test
+    void DuplicateEmail_Fails() throws Exception {
         when(userRepository.existsByEmailIgnoreCase("taken@example.com")).thenReturn(true);
-            mockMvc.perform(post("/signup")
-            .param("name", "Bob")
-            .param("email", "taken@example.com")
-            .param("password", "secret123"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("signup"))
-            .andExpect(model().hasErrors());
+        mockMvc.perform(post("/signup")
+                .param("name", "Bob")
+                .param("email", "taken@example.com")
+                .param("password", "secret123"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("signup"))
+                .andExpect(model().hasErrors());
 
-            verify(userRepository, never()).save(any());
+        verify(userRepository, never()).save(any());
     }
 
-    // Ensure submitting invalid/blank fields triggers validation erorrs and does not save
-    @Test 
-    void signupBlankFields() throws Exception{
+    // Ensure submitting invalid/blank fields triggers validation erorrs and does
+    // not save
+    @Test
+    void signupBlankFields() throws Exception {
         mockMvc.perform(post("/signup")
                 .param("name", "")
                 .param("email", "invalid-email")
@@ -143,7 +153,8 @@ public class AuthControllerTest {
                 .andExpect(redirectedUrl("/"));
     }
 
-    // Make sure customer login with valid credentials sets session and redirect to homepage
+    // Make sure customer login with valid credentials sets session and redirect to
+    // homepage
     @Test
     void customerLoggedInSuccessRedirectsHome() throws Exception {
         String hashedPassword = new BCryptPasswordEncoder().encode("secret123");
@@ -159,7 +170,8 @@ public class AuthControllerTest {
                 .andExpect(flash().attributeExists("successMessage"));
     }
 
-    // Ensure admin login with valid credentials sets session and redirects to Admin Dashboard (/admin)
+    // Ensure admin login with valid credentials sets session and redirects to Admin
+    // Dashboard (/admin)
     @Test
     void adminLoggedInSuccessRedirectsToAdmin() throws Exception {
         String hashedPassword = new BCryptPasswordEncoder().encode("admin123");
@@ -175,7 +187,8 @@ public class AuthControllerTest {
                 .andExpect(flash().attributeExists("successMessage"));
     }
 
-    // Ensure entering an incorrect password displays an error and does not create a session
+    // Ensure entering an incorrect password displays an error and does not create a
+    // session
     @Test
     void loginWrongPasswordShowsError() throws Exception {
         String hashedPassword = new BCryptPasswordEncoder().encode("correctPassword");
@@ -203,7 +216,8 @@ public class AuthControllerTest {
                 .andExpect(request().sessionAttributeDoesNotExist("session_user"));
     }
 
-    // Ensure logout invalidates the session, sets no-cache headers, and redirects to homepage.
+    // Ensure logout invalidates the session, sets no-cache headers, and redirects
+    // to homepage.
     @Test
     void logoutInvalidatesSessionAndRedirectsHome() throws Exception {
         User user = new User("Alice", "alice@example.com", "secret", "CUSTOMER");
@@ -215,5 +229,83 @@ public class AuthControllerTest {
                 .andExpect(header().string("Cache-Control", "no-cache, no-store, must-revalidate"))
                 .andExpect(flash().attributeExists("successMessage"));
         assertTrue(session.isInvalid());
+    }
+
+    // Story 1.10: Login records current and previous login timestamps
+    @Test
+    void loginUpdatesLoginTimestamps() throws Exception {
+        String hashedPassword = new BCryptPasswordEncoder().encode("SecretPass123");
+        User customer = new User("Alice", "alice@example.com", hashedPassword, "CUSTOMER");
+        LocalDateTime oldLogin = LocalDateTime.now().minusDays(1);
+        customer.setLastLoginAt(oldLogin);
+
+        when(userRepository.findByEmailIgnoreCase("alice@example.com")).thenReturn(Optional.of(customer));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        mockMvc.perform(post("/login")
+                .param("email", "alice@example.com")
+                .param("password", "SecretPass123"))
+                .andExpect(status().is3xxRedirection());
+
+        assertEquals(oldLogin, customer.getPreviousLoginAt());
+        assertNotNull(customer.getLastLoginAt());
+    }
+
+    // Story 1.11: 5th failed login locks the account for 15 minutes
+    @Test
+    void fifthFailedLoginLocksAccount() throws Exception {
+        String hashedPassword = new BCryptPasswordEncoder().encode("SecretPass123");
+        User customer = new User("Alice", "alice@example.com", hashedPassword, "CUSTOMER");
+        customer.setFailedLoginAttempts(4);
+
+        when(userRepository.findByEmailIgnoreCase("alice@example.com")).thenReturn(Optional.of(customer));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        mockMvc.perform(post("/login")
+                .param("email", "alice@example.com")
+                .param("password", "WrongPass123"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(model().attribute("errorMessage",
+                        "Too many failed login attempts. Your account is locked for 15 minutes."));
+
+        assertTrue(customer.accountLocked());
+        assertEquals(5, customer.getFailedLoginAttempts());
+    }
+
+    // Story 1.11: Locked account blocks even the correct password
+    @Test
+    void lockedAccountBlocksCorrectPassword() throws Exception {
+        String hashedPassword = new BCryptPasswordEncoder().encode("SecretPass123");
+        User customer = new User("Alice", "alice@example.com", hashedPassword, "CUSTOMER");
+        customer.setLockUntil(LocalDateTime.now().plusMinutes(10));
+
+        when(userRepository.findByEmailIgnoreCase("alice@example.com")).thenReturn(Optional.of(customer));
+
+        mockMvc.perform(post("/login")
+                .param("email", "alice@example.com")
+                .param("password", "SecretPass123"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(model().attributeExists("errorMessage"))
+                .andExpect(request().sessionAttributeDoesNotExist("session_user"));
+    }
+
+    // Story 1.12: Suspended user cannot log in
+    @Test
+    void suspendedAccountCannotLogIn() throws Exception {
+        String hashedPassword = new BCryptPasswordEncoder().encode("SecretPass123");
+        User customer = new User("Alice", "alice@example.com", hashedPassword, "CUSTOMER");
+        customer.setSuspended(true);
+
+        when(userRepository.findByEmailIgnoreCase("alice@example.com")).thenReturn(Optional.of(customer));
+
+        mockMvc.perform(post("/login")
+                .param("email", "alice@example.com")
+                .param("password", "SecretPass123"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(model().attribute("errorMessage", "Your account has been suspended by an administrator."))
+                .andExpect(request().sessionAttributeDoesNotExist("session_user"));
     }
 }

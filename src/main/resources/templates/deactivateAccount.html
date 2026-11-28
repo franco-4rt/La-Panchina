@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account — La Panchina</title>
+    <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <!-- Site Navigation -->
+    <header class="site-header">
+        <div class="container">
+            <nav class="nav-wrapper">
+                <a th:href="@{/}" class="brand-logo">
+                    <img th:src="@{/images/logo.jpg}" alt="La Panchina" class="brand-img">
+                    <span>La Panchina</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">Home</a></li>
+                    <li><a th:href="@{/menu}" class="nav-link">Menu</a></li>
+                    <li><a th:href="@{/reservations}" class="nav-link">Book a Table</a></li>
+                    <li><a th:href="@{/reviews}" class="nav-link">Reviews</a></li>
+                    <li><a th:href="@{/profile}" class="nav-link active">My Account</a></li>
+                    <li><a th:href="@{/logout}" class="nav-link">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 600px; margin-top: 50px; margin-bottom: 60px;">
+        <div class="card" style="padding: 2.5rem; text-align: left;">
+            <h2 style="margin-top: 0; color: #dc3545;">Delete Account</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">
+                Are you sure you want to delete your account, <strong th:text="${user.name}">Customer</strong>?
+            </p>
+
+            <!-- Permanent Deletion Warning -->
+            <div style="background-color: #ffd95a; border: 1px solid #ffeeba; color: #856404; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem;">
+                <strong>⚠️ Warning:</strong> This action is <strong>permanent</strong> and cannot be undone. All your account information, table reservations, and dining reviews will be completely deleted from our system.
+            </div>
+
+            <!-- Error message if password fails -->
+            <p th:if="${errorMessage}" th:text="${errorMessage}" class="warning-message" style="margin-bottom: 1.5rem;"></p>
+
+            <form th:action="@{/profile/deactivate}" method="post">
+                <div class="input-container" th:if="${!user.googleAccount}">
+                    <label for="password" class="input-title">Confirm Your Password</label>
+                    <input type="password" id="password" name="password" required class="input-box" placeholder="Enter your password to confirm">
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary" style="background-color: #dc3545; border-color: #dc3545;">
+                        Permanently Delete My Account
+                    </button>
+                    <a th:href="@{/profile}" class="btn btn-secondary">Cancel & Return to Profile</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+
+</html>

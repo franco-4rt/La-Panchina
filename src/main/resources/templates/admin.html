@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="icon" type="image/jpeg" th:href="@{/images/logo.jpg}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <header class="site-header">
@@ -29,7 +31,8 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <h2>Admin Management Portal</h2>
-                <p style="color: #666;">Logged in as: <strong th:text="${adminUser.name}">Admin</strong> (<span th:text="${adminUser.email}">admin@lapanchina.com</span>)</p>
+                <p style="color: #666;">Logged in as: <strong th:text="${adminUser.name}">Admin</strong> (<span
+                        th:text="${adminUser.email}">admin@lapanchina.com</span>)</p>
             </div>
             <a th:href="@{/}" class="btn btn-secondary">View Live Website &rarr;</a>
         </div>
@@ -65,6 +68,10 @@
         <h3 style="margin-top: 2.5rem;">Registered Users in Database</h3>
         <p style="color: #666; font-size: 0.95rem;">This view is restricted to administrators only.</p>
 
+        <p th:if="${successMessage}" th:text="${successMessage}" class="success-message" style="margin-bottom: 1rem;">
+        </p>
+        <p th:if="${errorMessage}" th:text="${errorMessage}" class="warning-message" style="margin-bottom: 1rem;"></p>
+
         <table class="admin-table">
             <thead>
                 <tr>
@@ -74,6 +81,8 @@
                     <th>Role</th>
                     <th>Phone</th>
                     <th>Updates</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -82,15 +91,35 @@
                     <td style="font-weight: 600;" th:text="${u.name}">Name</td>
                     <td th:text="${u.email}">email@example.com</td>
                     <td>
-                        <span class="role-badge" 
-                              th:classappend="${u.role == 'ADMIN'} ? 'role-admin' : 'role-customer'" 
-                              th:text="${u.role}">ADMIN</span>
+                        <span class="role-badge" th:classappend="${u.role == 'ADMIN'} ? 'role-admin' : 'role-customer'"
+                            th:text="${u.role}">ADMIN</span>
                     </td>
                     <td th:text="${u.phone != null and !u.phone.isEmpty()} ? ${u.phone} : '-'">-</td>
                     <td th:text="${u.contactPreference}">EMAIL</td>
+                    <td>
+                        <span th:if="${u.suspended}"
+                            style="background-color: #f8d7da; color: #721c24; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                            Suspended
+                        </span>
+                        <span th:unless="${u.suspended}"
+                            style="background-color: #d4edda; color: #155724; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                            Active
+                        </span>
+                    </td>
+                    <td>
+                        <form th:if="${u.role != 'ADMIN'}" th:action="@{/admin/users/{id}/toggle-suspend(id=${u.id})}"
+                            method="post" style="margin: 0;">
+                            <button type="submit" class="btn" th:text="${u.suspended} ? 'Reactivate' : 'Suspend'"
+                                th:style="${u.suspended} ? 'background-color: #2e7d32; color: white; padding: 0.35rem 0.75rem; font-size: 0.85rem;' : 'background-color: #dc3545; color: white; padding: 0.35rem 0.75rem; font-size: 0.85rem;'">
+                                Suspend
+                            </button>
+                        </form>
+                        <span th:if="${u.role == 'ADMIN'}" style="color: #999; font-size: 0.85rem;">—</span>
+                    </td>
                 </tr>
             </tbody>
         </table>
     </main>
 </body>
+
 </html>
