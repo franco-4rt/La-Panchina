@@ -106,6 +106,7 @@ public class GoogleOAuthController {
             } else {
                 // Create new customer account
                 user = new User();
+                user.setGoogleAccount(true);
                 user.setName(userData.getName() != null ? userData.getName() : "Google User");
                 user.setEmail(userData.getEmail());
                 user.setRole("CUSTOMER");

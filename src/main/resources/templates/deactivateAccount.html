@@ -46,7 +46,7 @@
             <p th:if="${errorMessage}" th:text="${errorMessage}" class="warning-message" style="margin-bottom: 1.5rem;"></p>
 
             <form th:action="@{/profile/deactivate}" method="post">
-                <div class="input-container">
+                <div class="input-container" th:if="${!user.googleAccount}">
                     <label for="password" class="input-title">Confirm Your Password</label>
                     <input type="password" id="password" name="password" required class="input-box" placeholder="Enter your password to confirm">
                 </div>

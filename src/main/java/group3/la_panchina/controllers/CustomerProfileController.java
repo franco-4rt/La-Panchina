@@ -137,7 +137,7 @@ public class CustomerProfileController {
     }
 
     @GetMapping("/deactivate")
-    public String getDeactivePage(HttpSession session, HttpServletResponse response, Model model) {
+    public String getDeactivatePage(HttpSession session, HttpServletResponse response, Model model) {
         User sessionUser = (User) session.getAttribute("session_user");
         if(sessionUser == null){
             return "redirect:/login";
@@ -155,7 +155,7 @@ public class CustomerProfileController {
     }
 
     @PostMapping("/deactivate")
-    public String deactivateAccount(@RequestParam("password") String password, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String deactivateAccount(@RequestParam(value = "password", required = false) String password, HttpSession session, RedirectAttributes redirectAttributes) {
         User sessionUser = (User)session.getAttribute("session_user");
         if(sessionUser == null){
             return "redirect:/login";
@@ -167,8 +167,8 @@ public class CustomerProfileController {
         }
         User user = userOptional.get();
 
-        // Verify user's password
-        if(password == null || !passwordEncoder.matches(password, user.getPassword())){
+        // Verify user's password is the account is not google logged in
+        if(!user.isGoogleAccount() && (password == null || !passwordEncoder.matches(password, user.getPassword()))){
             redirectAttributes.addFlashAttribute("errorMessage", "Incorrect password. Account deactivation cancelled.");
             return "redirect:/profile/deactivate";
         }
