@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -18,13 +18,14 @@ import group3.la_panchina.models.Booking;
 import group3.la_panchina.models.Notification;
 import group3.la_panchina.models.NotificationStatus;
 import group3.la_panchina.models.NotificationType;
+import group3.la_panchina.models.User;
 import group3.la_panchina.repositories.BookingNotificationRepository;
 import group3.la_panchina.repositories.NotificationRepository;
 
 @Service 
 public class NotificationService 
 {
-    // #tries for an email before giving up
+    // #tries for an email or SMS before giving up
     public static final int MAX_ATTEMPTS =  3;
 
     // How many hours before a booking the reminder is sent (US2)
@@ -36,6 +37,8 @@ public class NotificationService
     private final NotificationRepository notificationRepository;
     private final EmailSender emailSender;
     private final NotificationMessages messages;
+    private final SmsSender smsSender;
+    private final SmsMessages smsMessages;
     private final String adminEmail;
     private final ZoneId zone;
 
@@ -45,13 +48,17 @@ public class NotificationService
         NotificationRepository notificationRepository,
         EmailSender emailSender,
         NotificationMessages messages,
+        SmsSender smsSender,
+        SmsMessages smsMessages,
         @Value("${notifications.admin-email:${ADMIN_EMAIL:admin@lapanchina.com}}") String adminEmail,
-        @Value("${notifications.zone:America/Mexico_City}") String zone) {
+        @Value("${notifications.zone:America/Vancouver}") String zone) {
 
         this.bookingRepository = bookingRepository;
         this.notificationRepository = notificationRepository;
         this.emailSender = emailSender;
         this.messages = messages;
+        this.smsSender = smsSender;
+        this.smsMessages = smsMessages;
         this.adminEmail = adminEmail;
         this.zone = ZoneId.of(zone);
     }
@@ -59,8 +66,9 @@ public class NotificationService
     // US1 + US4: confirmation to the customer and alert to the administrator
     public void sendNewBookingNotifications()
     {
-        process(NotificationType.BOOKING_CONFIRMATION, bookingRepository.findPending(NotificationType.BOOKING_CONFIRMATION, NotificationStatus.FAILED, MAX_ATTEMPTS), booking -> booking.getUser().getEmail(), messages::bookingConfirmation, this::isCancelled);
-        process(NotificationType.ADMIN_NEW_BOOKING, bookingRepository.findPending(NotificationType.ADMIN_NEW_BOOKING, NotificationStatus.FAILED, MAX_ATTEMPTS), booking -> adminEmail, messages::adminNewBooking, this::isCancelled);
+        processForCustomer(NotificationType.BOOKING_CONFIRMATION, bookingRepository.findPending(NotificationType.BOOKING_CONFIRMATION, NotificationStatus.FAILED, MAX_ATTEMPTS), messages::bookingConfirmation, smsMessages::bookingConfirmation, this::isCancelled);
+        // The administrator alert is always via email
+        processAdminAlert(NotificationType.ADMIN_NEW_BOOKING, bookingRepository.findPending(NotificationType.ADMIN_NEW_BOOKING, NotificationStatus.FAILED, MAX_ATTEMPTS), messages::adminNewBooking, this::isCancelled);
     }
 
     // US2: Reminder for the bookings that start within the next REMINDER_HOURS
@@ -83,7 +91,7 @@ public class NotificationService
         })
         .toList();
 
-        process(NotificationType.REMINDER, inWindow, booking -> booking.getUser().getEmail(), messages::bookingReminder, booking -> isCancelled(booking) || wasBookedInsideReminderWindow(booking));
+        processForCustomer(NotificationType.REMINDER, inWindow, messages::bookingReminder, smsMessages::bookingReminder, booking -> isCancelled(booking) || wasBookedInsideReminderWindow(booking));
     }
 
     // US3: Tells the customer when an administrator confirmed or cancelled the booking
@@ -97,11 +105,11 @@ public class NotificationService
     {
         LocalDateTime nowLocal = now.toLocalDateTime();
 
-        process(NotificationType.STATUS_CONFIRMED,  bookingRepository.findPendingWithStatus(NotificationType.STATUS_CONFIRMED, NotificationStatus.FAILED, MAX_ATTEMPTS, List.of("confirmed")),
-        booking -> booking.getUser().getEmail(), messages::statusConfirmed, booking -> hasAlreadyStarted(booking, nowLocal));
+        processForCustomer(NotificationType.STATUS_CONFIRMED,  bookingRepository.findPendingWithStatus(NotificationType.STATUS_CONFIRMED, NotificationStatus.FAILED, MAX_ATTEMPTS, List.of("confirmed")),
+        messages::statusConfirmed, smsMessages::statusConfirmed, booking -> hasAlreadyStarted(booking, nowLocal));
 
-         process(NotificationType.STATUS_CANCELLED,  bookingRepository.findPendingWithStatus(NotificationType.STATUS_CANCELLED, NotificationStatus.FAILED, MAX_ATTEMPTS, List.of("cancelled", "canceled")),
-        booking -> booking.getUser().getEmail(), messages::statusCancelled, booking -> hasAlreadyStarted(booking, nowLocal));
+        processForCustomer(NotificationType.STATUS_CANCELLED,  bookingRepository.findPendingWithStatus(NotificationType.STATUS_CANCELLED, NotificationStatus.FAILED, MAX_ATTEMPTS, List.of("cancelled", "canceled")),
+        messages::statusCancelled, smsMessages::statusCancelled, booking -> hasAlreadyStarted(booking, nowLocal));
     }
 
     // True if the booking time has already passed (doesn't make sense to tell the customer about it)
@@ -110,14 +118,53 @@ public class NotificationService
         return LocalDateTime.of(booking.getDate(), booking.getTime()).isBefore(nowLocal);
     }
 
-    // Sends one type of notification for each booking in the list
-    private void process(NotificationType type, List<Booking> bookings, Function<Booking, String> recipient, BiFunction<String, Booking, EmailMessage> template, Predicate<Booking> shouldSkip)
+    private void processForCustomer(NotificationType type, List<Booking> bookings, BiFunction<String, Booking, EmailMessage> emailTemplate, BiFunction<String, Booking, SmsMessage> smsTemplate, Predicate<Booking> shouldSkip)
     {
         for (Booking booking : bookings)
         {
-            String to = recipient.apply(booking);
+            User customer = booking.getUser();
+            boolean bySms = prefersSms(customer);
+            Optional<String> phone = bySms ? PhoneNumbers.toE164(customer.getPhone()) : Optional.empty();
+            String channel = bySms ? "SMS" : "EMAIL";
+            String to = bySms ? phone.orElse(null) : customer.getEmail();
+
             Notification row = notificationRepository.findByBookingIdAndType(booking.getId(), type)
-            .orElseGet(() -> new Notification(booking.getId(), type, "EMAIL", to, NotificationStatus.FAILED));
+            .orElseGet(() -> new Notification(booking.getId(), type, channel, to, NotificationStatus.FAILED));
+            // The customer may have changed the preference since a previous failed attempt
+            row.setChannel(channel);
+            row.setRecipient(to);
+
+            if (shouldSkip.test(booking))
+            {
+                row.setStatus(NotificationStatus.SKIPPED);
+                notificationRepository.save(row);
+            }
+            else if (bySms && phone.isEmpty())
+            {
+                // Preference choosed: SMS, but number is not valid: nothing is sent (phone number is not written in log)
+                row.setStatus(NotificationStatus.SKIPPED);
+                row.setError("Invalid phone number for SMS");
+                notificationRepository.save(row);
+                log.info("Skipped {} for booking {}: the customer chose SMS but the phone number is not valid", type, booking.getId());
+            }
+            else if (bySms)
+            {
+                deliver(row, () -> smsSender.send(smsTemplate.apply(phone.get(), booking)));
+            }
+            else
+            {
+                deliver(row, () -> emailSender.send(emailTemplate.apply(to, booking)));
+            }
+        }
+    }
+
+    // Sends the alert for the administrator for each booking in the list (always by email) 
+    private void processAdminAlert(NotificationType type, List<Booking> bookings, BiFunction<String, Booking, EmailMessage> template, Predicate<Booking> shouldSkip)
+    {
+        for (Booking booking : bookings)
+        {
+            Notification row = notificationRepository.findByBookingIdAndType(booking.getId(), type)
+            .orElseGet(() -> new Notification(booking.getId(), type, "EMAIL", adminEmail, NotificationStatus.FAILED));
 
             if (shouldSkip.test(booking))
             {
@@ -126,9 +173,15 @@ public class NotificationService
             }
             else
             {
-                deliver(row, template.apply(to, booking));
+                deliver(row, () -> emailSender.send(template.apply(adminEmail, booking)));
             }
         }
+    }
+
+    private boolean prefersSms(User customer)
+    {
+        String preference = customer.getContactPreference();
+        return preference != null && "SMS".equalsIgnoreCase(preference.trim());
     }
 
     private boolean isCancelled(Booking booking)
@@ -149,12 +202,13 @@ public class NotificationService
             .toInstant();
         return confirmedAt.isAfter(reminderTime);
     }
-
-    private void deliver(Notification row, EmailMessage message)
+    
+    // Runs the given send action (email or SMS) and records the result in the notification row
+    private void deliver(Notification row, Runnable send)
     {
         row.setAttempts(row.getAttempts() + 1); // 1st
         try {
-            emailSender.send(message);
+            send.run();
             row.setStatus(NotificationStatus.SENT);
             row.setSentAt(Instant.now());
             row.setError(null);

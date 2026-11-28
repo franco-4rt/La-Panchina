@@ -32,11 +32,11 @@ public class Notification {
     @Column(nullable = false, length = 30)
     private NotificationType type;
 
-    // Only email for now (to be considered)
+    // How it was sent: EMAIL vs SMS
     @Column (nullable = false, length = 10)
     private String channel;
 
-    // Email address the notification was sent to
+    // Email address or phone number the notification was sent to (null if the number was not valid)
     @Column (length = 120)
     private String recipient;
 
@@ -85,4 +85,6 @@ public class Notification {
    public String getError() {return error;}
    public void setError(String error) {this.error = error;}
    public void setCreatedAt(Instant createdAt) {this.createdAt = createdAt;} // New setter
+   public void setChannel(String channel) {this.channel = channel;}
+   public void setRecipient(String recipient) {this.recipient = recipient;}
 }
